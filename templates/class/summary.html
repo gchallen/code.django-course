@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="summary">
+  <div class="box_14">
+    <div class="label grid_2">
+      Summary:
+    </div>
+    <div id="summarytext" class="grid_12">
+      {{ summary|safe|linebreaks }}
+    </div>
+    <div class="label grid_2">
+      Keywords:
+    </div>
+    <div id="keywords" class="grid_12">
+      <p>{{keywords}}</p>
+    </div>
+    <div class="label grid_2">
+      {{ semester.name }}:
+    </div>
+    <div id="classsummarytext" class="grid_12">
+      {{ theclass.classsummary|safe|linebreaks }}
+    </div>
+  </div>
+  <div class="grid_2">
+    <div id="faculty">
+    <h4>Staff</h4>
+    {% for faculty in theclass.faculty.filter %}
+      <div class="onefaculty">
+        {% if faculty.photo %}
+        <img src="{{ faculty.photo.url }}">
+        {% endif %}
+        {% if faculty.link %}
+        <a href="{{ faculty.link }}">
+        {% endif %}
+          {{ faculty.name }}</a>
+        {% if faculty.link %}
+        </a>
+        {% endif %}
+      </div>
+    {% endfor %} 
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block supporters %}
+<div class="clear"></div>
+<div id="supporters">
+  <div class="box_16">
+				<div id="kwick-box5">
+					<div id="kwick">
+						<ul class="kwicks">
+							<li>
+								<a class="kwick" href="#">
+                  <div class="supporterlogo" style="border-bottom: 2px solid black;">
+                    Supporters:
+                  </div>
+                  <div class="supportertextouter" style="border-bottom: 2px solid black;">
+                    <div class="supportertextinner">
+                      The support of several leading technologies companies has
+                      helped make this course possible. Mouse over their
+                      logos to learn more.
+                    </div>
+                  </div>
+								</a>
+							</li>
+{% for contribution in theclass.contribution_set.filter %}
+							<li>
+								<a class="kwick" href="#">
+                  <div class="supporterlogo"
+                    {% if contribution.supporter.logoprimarycolor %}
+                    style="border-bottom: 2px solid #{{contribution.supporter.logoprimarycolor }}"
+                    {% endif %}>
+                    <img src="{{ contribution.supporter.logo.url }}">
+                  </div>
+                  <div class="supportertextouter"
+                    {% if contribution.supporter.logoprimarycolor %}
+                    style="border-bottom: 2px solid #{{contribution.supporter.logoprimarycolor }}"
+                    {% endif %}>
+                    <div class="supportertextinner">
+                      {{ contribution.description }}
+                    </div>
+                  </div>
+								</a>
+							</li>
+{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+    </div>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/kwick.js"
+      defer="defer"></script>
+{% endblock %}

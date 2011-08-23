@@ -1,0 +1,247 @@
+body {
+	background: white;
+  width:960px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Palatino Linotype', 'Palatino', Georgia, 'Times New Roman', serif
+}
+
+hr {
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0 0;
+	clear: both;
+	height: 0;
+}
+
+#header {
+  padding: 10px;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+#header h1 {
+	font-weight:normal;
+  font-size:2.2em;
+  margin-bottom: 5px;
+}
+
+#header h2 {
+	font-weight:normal;
+  font-size:1.5em;
+  font-style:italic;
+  margin: 0px;
+}
+
+#header img {
+  float: right;
+}
+
+a:visited {
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#footer img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#content #summary {
+  line-height:110%;
+}
+
+#content #summarytext p {
+  margin-bottom: 0.5em;
+}
+
+#content #faculty h4 {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+#content #faculty .onefaculty {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: 1px solid black;
+  text-align: center;
+  font-weight: bold;
+  color: #191995;
+}
+
+#content #faculty .onefaculty img {
+  display: block;
+  width: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 10px;
+}
+
+#content #keywords p {
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #191995;
+  padding-left: 10px;
+}
+
+#content .label {
+  font-weight:bold;
+  text-align: right;
+}
+
+
+#supporters .supporterlogo {
+  height: 118px;
+  width: 192px;
+  line-height: 120px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5em;
+  font-variant: small-caps;
+  margin: 0px;
+  padding: 0px;
+  float: left;
+}
+
+#supporters .supporterlogo img {
+  width: 180px;
+}
+
+#supporters .supportertextouter {
+  position: relative;
+  height: 118px;
+  text-align: left;
+  font-size: 1em;
+  font-weight: normal;
+  margin: 0px;
+  padding: 0px;
+}
+#supporters .supportertextinner {
+  vertical-align: middle;
+  display: table-cell;
+  height: 118px;
+  margin-top: -59px;
+  font-size: 0.9em;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#supporters .supporterlogo img {
+  vertical-align: middle;
+}
+
+/* =Headings
+--------------------------------------------------------------------------------*/
+
+h1
+{
+	font-size: 25px;
+}
+
+h2
+{
+	font-size: 23px;
+}
+
+h3
+{
+	font-size: 21px;
+}
+
+h4
+{
+	font-size: 19px;
+}
+
+h5
+{
+	font-size: 17px;
+}
+
+h6
+{
+	font-size: 15px;
+}
+
+/* =Spacing
+--------------------------------------------------------------------------------*/
+
+ol
+{
+	list-style: decimal;
+}
+
+ul
+{
+	list-style: square;
+}
+
+li
+{
+	margin-left: 30px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+dl,
+hr,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ol,
+ul,
+pre,
+table,
+address,
+fieldset
+{
+	margin-bottom: 20px;
+}
+
+/* Mootools Kwicks
+----------------------------------------------- */
+#kwick-box { 
+	padding: 0px;
+  margin: 0px;
+	overflow:hidden;
+}
+#kwick {
+	position: relative;
+}
+#kwick .kwicks {
+	display: block;
+	background: white;
+	height: 120px;
+	list-style:none;
+	margin:0;
+	overflow:hidden;
+}
+#kwick li {
+	float: left;
+	margin:0;
+	padding:0;
+}
+#kwick .kwick {
+	display: block;
+	cursor: pointer;
+	overflow: hidden;
+	height: inherit;
+	width: 192px;
+  margin: 0px;
+  padding: 0px;
+}
+#kwick a {
+  color: inherit;
+}
+#kwick a:hover {
+  text-decoration: none;
+}

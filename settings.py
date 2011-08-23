@@ -1,0 +1,2 @@
+FullCourseURLs = False
+

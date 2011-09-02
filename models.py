@@ -237,6 +237,13 @@ class Supporter(models.Model):
   def __unicode__(self):
     return self.name
 
+class Assignment(models.Model):
+  name = models.CharField(max_length=1024)
+  number = models.SmallIntegerField()
+  gradecontribution = models.FloatField()
+  summary = models.TextField()
+  toclass = models.ForeignKey('Class', blank=True, null=True)
+
 def genfilename(key, instance, filename):
   return "django-course/%s/%s%s" % \
       (key,

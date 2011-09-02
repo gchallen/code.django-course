@@ -10,7 +10,7 @@ def fullUrlToSummary(request, university_slug, department_slug, offering_number,
 
   return offeringObjectToSummary(request, offering, semester_slug=semester_slug)
 
-def offeringObjectToSummary(request, offering, semester_slug=None):
+def offeringToClass(request, offering, semester_slug=None):
 
   university = offering.department.university
   if semester_slug != None:
@@ -29,28 +29,29 @@ def offeringObjectToSummary(request, offering, semester_slug=None):
   # 09 Aug 2011 : GWA : Override course attributes with class ones if
   #               necessary.
 
-  if theclass.title != "":
-    title = theclass.title
-  else:
-    title = theclass.course.title
+  if theclass.title == "":
+    theclass.title = theclass.course.title
 
-  if theclass.keywords != "":
-    keywords = theclass.keywords
-  else:
-    keywords = theclass.course.keywords
+  if theclass.keywords == "":
+    theclass.keywords = theclass.course.keywords
 
-  if theclass.summary != "":
-    summary = theclass.summary
-  else:
-    summary = theclass.course.summary
+  if theclass.summary == "":
+    theclass.summary = theclass.course.summary
 
+  theclass.university = offering.department.university
+  theclass.department = offering.department
+  theclass.offering = offering
+  
+  return renderClassSummary(request, theclass)
+
+def renderClassSummary(request, theclass):
   return render_to_response('class/summary.html', 
-                           {'title': title,
-                            'keywords': keywords,
-                            'summary': summary,
-                            'university': offering.department.university,
-                            'department': offering.department,
-                            'offering': offering,
-                            'semester': semester,
+                           {'title': theclass.title,
+                            'keywords': theclass.keywords,
+                            'summary': theclass.summary,
+                            'university': theclass.university,
+                            'department': theclass.department,
+                            'offering': theclass.offering,
+                            'semester': theclass.semester,
                             'theclass': theclass},
                             context_instance=RequestContext(request))

@@ -14,6 +14,15 @@ if course_settings.FullCourseURLs:
 
 for offering in Offering.on_site.all():
   for link in offering.offeringlink_set.filter(site=site_settings.SITE_ID):
-    urlpatterns += patterns('course.views',
-                    (r'^' + link.slug + r'/((?P<semester_slug>\w+)/)?$',
-                     'classes.offeringObjectToSummary', {'offering': link.offering}))
+    for theclass in offering.classes.all():
+      if theclass.semester.current == True:
+        urlpatterns += patterns('',
+                                (r'^%s' % (link.slug),
+                                 include('course.views.classes'), {'theclass': theclass}),
+                                (r'^%s/%s/' % (link.slug, theclass.semester.slug),
+                                 include('course.views.classes'), {'theclass': theclass}))
+      else:
+        pass
+        urlpatterns += patterns('',
+                                r'^%s/%s/' % (link.slug, theclass.semester.slug),
+                                include('course.views.classes'), {'theclass': theclass})

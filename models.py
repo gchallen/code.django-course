@@ -80,6 +80,9 @@ class Meeting(models.Model):
   
   summary = models.CharField(max_length=1024)
   description = models.TextField(blank=True, null=True)
+  
+  def __unicode__(self):
+    return "%s : %s-%s, %s : %s" % (str(self.theclass), self.start, self.end, self.location, self.summary)
 
 # 15 Aug 2011 : GWA : Offering links decouple the offering from the naming and
 #               allow mirroring. For example, users could have both:

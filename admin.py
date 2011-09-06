@@ -1,5 +1,6 @@
-from course.models import Course, Class, Offering, University, Department, Semester,\
-    Holiday, Faculty, Supporter, Contribution, OfferingLink
+from course.models import Course, Class, Offering, University, Department,\
+    Semester, Holiday, Faculty, Supporter, Contribution, OfferingLink,\
+    Meeting
 from django.contrib.sites.models import Site
 from django.contrib import admin
 
@@ -14,3 +15,4 @@ admin.site.register(Faculty)
 admin.site.register(Supporter)
 admin.site.register(Contribution)
 admin.site.register(OfferingLink)
+admin.site.register(Meeting)

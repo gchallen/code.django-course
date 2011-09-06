@@ -3,7 +3,7 @@ body {
   width:960px;
   margin-left: auto;
   margin-right: auto;
-  font-family: 'Palatino Linotype', 'Palatino', Georgia, 'Times New Roman', serif
+  font-family: 'Palatino', 'Times New Roman', serif
 }
 
 hr {
@@ -95,6 +95,7 @@ a:hover {
 }
 
 #faculty h4 {
+  font-variant:small-caps;
   text-align: center;
   margin-bottom: 0px;
 }
@@ -286,4 +287,73 @@ fieldset
 }
 #kwick a:hover {
   text-decoration: none;
+}
+
+#schedule {
+  margin-top:15px;
+  margin-bottom:15px;
+}
+
+#schedule .heading {
+  font-size:1.1em;
+  font-weight:bold;
+  text-align:center;
+  font-variant:small-caps;
+}
+
+#schedule .heading hr {
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0 0;
+	height: 0px;
+  margin-bottom:15px;
+}
+
+#schedule .entries {
+  font-variant:small-caps;
+  font-size:0.9em;
+  text-align:center;
+  font-weight:bold;
+}
+
+#schedule .description {
+  font-variant:normal;
+  font-size:1.0em;
+  text-align:left;
+  font-weight:normal;
+}
+
+#schedule .entry {
+  margin-top:10px;
+  margin-bottom:10px;
+  padding-top:10px;
+  padding-bottom:10px;
+  margin-left:-5px;
+  border-left:5px solid black;
+}
+
+#schedule .entry.optional {
+  font-weight:normal;
+  border-left:0px;
+  margin-left:0px;
+}
+
+#schedule .entry .description .summary {
+  font-weight:bold;
+  text-decoration:underline;
+}
+
+#schedule .entry.optional .description .summary {
+  font-weight:normal;
+  font-style:italic;
+}
+
+#schedule .entry.odd {
+  background-color:#dfdfdf;
+}
+
+#schedule .entry .description p {
+  margin-top:5px;
+  margin-bottom:0px;
+  line-height:110%;
 }

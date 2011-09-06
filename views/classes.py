@@ -37,6 +37,7 @@ def summary(request, theclass):
                             context_instance=RequestContext(request))
 
 def assignments(request, theclass, assignment=None):
+  loadLinks(theclass, "Assignments")
   if assignment == None:
     return render_to_response('class/assignments.html',
                               {'theclass': theclass},
@@ -47,7 +48,11 @@ def assignments(request, theclass, assignment=None):
                               context_instance=RequestContext(request))
 
 def schedule(request, theclass):
-  raise Http404;
+  loadLinks(theclass, "Schedule")
+  return render_to_response('class/schedule.html',
+                            {'theclass': theclass},
+                            context_instance=RequestContext(request))
+
 
 def staff(request, theclass):
   raise Http404;

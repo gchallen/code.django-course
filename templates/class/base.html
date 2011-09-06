@@ -42,6 +42,28 @@
   <div class="clear"></div>
 </div>
   {% endblock %}
+  {% block submenu %}
+{% if theclass.submenulinks %}
+<div id="menu" class="submenu">
+  <div class="container_16">
+    {% for link in theclass.submenulinks %}
+      {% if link.visible %}
+        {% if link.current %}
+        <div class="currentlabel grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% else %}
+        <div class="label grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div class="clear"></div>
+</div>
+{% endif %}
+  {% endblock %}
   <div class="clear"></div>
   <div id=content>
     {% block content %}{% endblock %}

@@ -10,16 +10,16 @@
   <!--[if IE 6]><link rel="stylesheet" type="text/css" href="../../css/ie6.css" media="screen" /><![endif]-->
   <!--[if IE 7]><link rel="stylesheet" type="text/css" href="../../css/ie.css" media="screen" /><![endif]-->
   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/course.css" media="screen" />
-  <title>{% block title %}{{university.shortname}} {{ department.shortname }}{{ offering.number }}: {{ title }} ({{ semester.name }}) {% endblock %}</title>
+  <title>{% block title %}{{theclass.university.shortname}} {{ theclass.department.shortname }}{{ theclass.theoffering.number }}: {{ theclass.title }} ({{ theclass.semester.name }}) {% endblock %}</title>
 </head>
 <body>
 <div class="container_16">
   <div id="header" class="grid_16">
-    <a href="{{ department.link }}">
-      <img src="{{ department.logo.url }}" width="{{ department.logo.width }}px" height="{{ department.logo.height}}px" alt="{{ department.name }}">
+    <a href="{{ theclass.department.link }}">
+      <img src="{{ theclass.department.logo.url }}" width="{{ theclass.department.logo.width }}px" height="{{ theclass.department.logo.height}}px" alt="{{ theclass.department.name }}">
     </a>
-    <h1><a href="{{ department.link }}">{{ department.shortname}}</a>{{ offering.number }}: {{ title }} </h1>
-    <h2> {{ semester.name }}&mdash;{{ theclass.classtitle }} </h2>
+    <h1><a href="{{ theclass.department.link }}">{{ theclass.department.shortname}}</a>{{ theclass.theoffering.number }}: {{ theclass.title }} </h1>
+    <h2> {{ theclass.semester.name }}&mdash;{{ theclass.classtitle }} </h2>
   </div>
   <hr />
   <div class="clear"></div>
@@ -34,7 +34,7 @@
   <hr />
   <div id="footer" class="grid_16">
     <div class="grid_4 prefix_6 suffix_11">
-    <a href="{{ university.link }}"><img src="{{ university.logo.url }}" width="{{ university.logo.width }}px" height="{{ university.logo.height }}px" alt="{{ university.name }}"></a>
+    <a href="{{ theclass.university.link }}"><img src="{{ theclass.university.logo.url }}" width="{{ theclass.university.logo.width }}px" height="{{ theclass.university.logo.height }}px" alt="{{ theclass.university.name }}"></a>
   </div>
   </div>
 </div>

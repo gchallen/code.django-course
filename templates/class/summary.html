@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "class/base.html" %}
 
 {% block content %}
 <div id="summary">
@@ -7,16 +7,16 @@
       Summary:
     </div>
     <div id="summarytext" class="grid_12">
-      {{ summary|safe|linebreaks }}
+      {{ theclass.summary|safe|linebreaks }}
     </div>
     <div class="label grid_2">
       Keywords:
     </div>
     <div id="keywords" class="grid_12">
-      <p>{{keywords}}</p>
+      <p>{{theclass.keywords}}</p>
     </div>
     <div class="label grid_2">
-      {{ semester.name }}:
+      {{ theclass.semester.name }}:
     </div>
     <div id="classsummarytext" class="grid_12">
       {{ theclass.classsummary|safe|linebreaks }}

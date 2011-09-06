@@ -18,7 +18,7 @@
     <div class="clear"></div>
     <div class="entries">
     {% for meeting in meetings %}
-    <div class="entry {% cycle 'odd' 'even' %} {% if meeting.optional %}optional{% endif %}">
+    <div class="entry {% cycle 'odd' 'even' %} {% if meeting.optional %}optional{% endif %} {% if meeting.nextmeeting %}next{% endif %}">
       <div class="grid_2">
         {{ meeting.start|date:"l" }}<br>
         {{ meeting.start|date:"m.d.Y" }}<br>

@@ -25,8 +25,7 @@ class MenuLink:
 def loadLinks(current, visible=None):
   menulinks = [MenuLink('Summary', reverse('summary')),
                MenuLink('Schedule', reverse('schedule-default')),
-               MenuLink('Assignments', reverse('assignments')),
-               MenuLink('Staff', reverse('staff'))]
+               MenuLink('Assignments', reverse('assignments'))]
   return initLinks(menulinks, current, visible)
 
 def initLinks(menulinks, current, visible=None):
@@ -39,14 +38,14 @@ def initLinks(menulinks, current, visible=None):
 
 def summary(request, theclass):
   theclass.menulinks = loadLinks("Summary")
-  theclass.submenulink = None
+  theclass.submenulinks = None
   return render_to_response('class/summary.html',
                             {'theclass': theclass},
                             context_instance=RequestContext(request))
 
 def assignments(request, theclass, assignment=None):
   theclass.menulinks = loadLinks("Assignments")
-  theclass.submenulink = None
+  theclass.submenulinks = None
   if assignment == None:
     return render_to_response('class/assignments.html',
                               {'theclass': theclass},
@@ -61,27 +60,34 @@ def loadScheduleSubLinks(current, visible=None):
                MenuLink('All', reverse('schedule-all'))]
   return initLinks(menulinks, current, visible)
 
-
 def scheduledefault(request, theclass):
   start = datetime.now()
   end = datetime.combine(theclass.semester.end, time())
   meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end)
   if len(meetings) > 0:
-    return schedulenext(request, theclass, meetings)
+    return schedulenext(request, theclass)
   else:
     return scheduleall(request, theclass)
 
 def schedulenext(request, theclass):
   start = datetime.now()
   end = datetime.combine(theclass.semester.end, time())
-  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end)
+  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end).order_by('start')
+  if len(meetings) > 0:
+    meetings[0].nextmeeting = True
   theclass.submenulinks = loadScheduleSubLinks('Next')
   return schedule(request, theclass, meetings)
 
 def scheduleall(request, theclass, ignored=True):
   start = datetime.combine(theclass.semester.start, time())
   end = datetime.combine(theclass.semester.end, time())
-  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end)
+  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end).order_by('start')
+
+  for meeting in meetings:
+    if meeting.start > datetime.now():
+      meeting.nextmeeting = True
+      break
+
   theclass.submenulinks = loadScheduleSubLinks('All')
   return schedule(request, theclass, meetings)
 

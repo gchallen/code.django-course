@@ -359,6 +359,13 @@ fieldset
   background-color:#dfdfdf;
 }
 
+#schedule .entry.odd.next {
+  background-color:#c0dfc8;
+}
+#schedule .entry.even.next {
+  background-color:#c0dfc8;
+}
+
 #schedule .entry .description p {
   margin-top:5px;
   margin-bottom:0px;

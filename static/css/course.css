@@ -14,6 +14,41 @@ hr {
 	height: 0;
 }
 
+#menu {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+#menu .label, .currentlabel {
+  line-height:1.6em;
+  text-align:center;
+  font-variant:small-caps;
+  font-size:0.9em;
+  font-weight:bold;
+}
+
+#menu .label a {
+  text-decoration:none;
+  color:inherit;
+  height:inherit;
+  width:inherit;
+  display:block;
+}
+
+#menu .currentlabel a {
+  text-decoration:none;
+  color:inherit;
+  height:inherit;
+  width:inherit;
+  display:block;
+  background-color:#e6e6fa;
+}
+
+#menu .label a:hover {
+  background:#dfdfdf;
+}
+
 #header {
   padding: 10px;
   display: table-cell;
@@ -59,26 +94,32 @@ a:hover {
   margin-bottom: 0.5em;
 }
 
-#content #faculty h4 {
+#faculty h4 {
   text-align: center;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
-#content #faculty .onefaculty {
+#faculty .onefaculty {
   padding-top: 10px;
   padding-bottom: 10px;
-  border-top: 1px solid black;
   text-align: center;
   font-weight: bold;
   color: #191995;
 }
 
-#content #faculty .onefaculty img {
+#faculty .onefaculty img {
   display: block;
   width: 100px;
   margin-left: auto;
   margin-right: auto;
   padding-bottom: 10px;
+}
+
+#faculty hr {  
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0 0;
+  margin: 0px;
 }
 
 #content #keywords p {
@@ -91,6 +132,7 @@ a:hover {
 #content .label {
   font-weight:bold;
   text-align: right;
+  font-variant:small-caps;
 }
 
 

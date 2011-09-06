@@ -35,15 +35,14 @@ if course_settings.FullCourseURLs:
 for offering in Offering.on_site.all():
   for link in offering.offeringlink_set.filter(site=site_settings.SITE_ID):
     for theclass in offering.classes.all():
-      theclass = loadClass(theclass, offering)
       if theclass.semester.current == True:
+        base = r'%s' % (link.slug)
         urlpatterns += patterns('',
-                                (r'^%s' % (link.slug),
-                                 include('course.views.classes'), {'theclass': theclass}),
-                                (r'^%s/%s' % (link.slug, theclass.semester.slug),
-                                 include('course.views.classes'), {'theclass': theclass}))
-      else:
-        pass
-        urlpatterns += patterns('',
-                                r'^%s/%s' % (link.slug, theclass.semester.slug),
-                                include('course.views.classes'), {'theclass': theclass})
+                                (base,
+                                 include('course.views.classes'),
+                                 {'theclass': loadClass(theclass, offering)}))
+      base = r'%s/%s' % (link.slug, theclass.semester.slug)
+      urlpatterns += patterns('',
+                              (base,
+                               include('course.views.classes'),
+                               {'theclass': loadClass(theclass, offering)}))

@@ -3,10 +3,7 @@
 {% block content %}
 <div id="summary">
   <div class="box_14">
-    <div class="label grid_2">
-      Summary:
-    </div>
-    <div id="summarytext" class="grid_12">
+    <div id="summarytext" class="grid_12 prefix_2">
       {{ theclass.summary|safe|linebreaks }}
     </div>
     <div class="label grid_2">
@@ -24,7 +21,7 @@
   </div>
   <div class="grid_2">
     <div id="faculty">
-    <h4>Staff</h4>
+      <h4>Staff</h4>
     {% for faculty in theclass.faculty.filter %}
       <div class="onefaculty">
         {% if faculty.photo %}
@@ -38,6 +35,9 @@
         </a>
         {% endif %}
       </div>
+      {% if not forloop.last %}
+        <hr />
+      {% endif %}
     {% endfor %} 
     </div>
   </div>

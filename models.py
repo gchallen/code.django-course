@@ -69,6 +69,18 @@ class Class(models.Model):
   class Meta:
     verbose_name_plural = "classes"
 
+class Meeting(models.Model):
+  theclass = models.ForeignKey("Class")
+  
+  start = models.DateTimeField()
+  end = models.DateTimeField()
+  location = models.CharField(max_length=256)
+
+  optional = models.BooleanField(default=False)
+  
+  summary = models.CharField(max_length=1024)
+  description = models.TextField(blank=True, null=True)
+
 # 15 Aug 2011 : GWA : Offering links decouple the offering from the naming and
 #               allow mirroring. For example, users could have both:
 #               

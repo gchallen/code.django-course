@@ -4,11 +4,13 @@ from django.http import HttpResponse, Http404
 from course.models import University, Department, Offering, Semester
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
+from datetime import datetime, time
 
 urlpatterns = patterns('course.views.classes',
                        url(r'^/$', 'summary'),
                        url(r'^/summary/$', 'summary', name='summary'),
-                       url(r'^/schedule/$', 'schedule', name='schedule'),
+                       url(r'^/schedule/(?P<ignored>all/)?$', 'scheduleall', name='schedule-all'),
+                       url(r'^/schedule/next/$', 'schedulenext', name='schedule-next'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'))
 
@@ -21,7 +23,7 @@ class MenuLink:
 
 def loadLinks(theclass, current, visible=None):
   theclass.menulinks = [MenuLink('Summary', reverse('summary')),
-                        MenuLink('Schedule', reverse('schedule')),
+                        MenuLink('Schedule', reverse('schedule-next')),
                         MenuLink('Assignments', reverse('assignments')),
                         MenuLink('Staff', reverse('staff'))]
   for menulink in theclass.menulinks:
@@ -47,10 +49,22 @@ def assignments(request, theclass, assignment=None):
                               {'theclass': theclass},
                               context_instance=RequestContext(request))
 
-def schedule(request, theclass):
+def schedulenext(request, theclass):
+  start = datetime.now()
+  end = datetime.combine(theclass.semester.end, time())
+  return schedule(request, theclass, start, end)
+
+def scheduleall(request, theclass, ignored=True):
+  start = datetime.combine(theclass.semester.start, time())
+  end = datetime.combine(theclass.semester.end, time())
+  return schedule(request, theclass, start, end)
+
+def schedule(request, theclass, start, end):
   loadLinks(theclass, "Schedule")
+  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end)
   return render_to_response('class/schedule.html',
-                            {'theclass': theclass},
+                            {'theclass': theclass,
+                             'meetings': meetings},
                             context_instance=RequestContext(request))
 
 

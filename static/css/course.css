@@ -79,6 +79,9 @@ hr {
   float: right;
 }
 
+a {
+  color: inherit;
+}
 a:visited {
   color: inherit;
 }

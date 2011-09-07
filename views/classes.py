@@ -72,7 +72,7 @@ def scheduledefault(request, theclass):
 def schedulenext(request, theclass):
   start = datetime.now()
   end = datetime.combine(theclass.semester.end, time())
-  meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end).order_by('start')
+  meetings = theclass.meeting_set.filter(end__gte=start, end__lte=end).order_by('start')
   if len(meetings) > 0:
     meetings[0].nextmeeting = True
   theclass.submenulinks = loadScheduleSubLinks('Next')
@@ -84,7 +84,7 @@ def scheduleall(request, theclass, ignored=True):
   meetings = theclass.meeting_set.filter(start__gte=start, end__lte=end).order_by('start')
 
   for meeting in meetings:
-    if meeting.start > datetime.now():
+    if meeting.end > datetime.now():
       meeting.nextmeeting = True
       break
 

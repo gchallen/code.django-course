@@ -41,8 +41,9 @@ for offering in Offering.on_site.all():
                                 (base,
                                  include('course.views.classes'),
                                  {'theclass': loadClass(theclass, offering)}))
-      base = r'%s/%s' % (link.slug, theclass.semester.slug)
-      urlpatterns += patterns('',
-                              (base,
-                               include('course.views.classes'),
-                               {'theclass': loadClass(theclass, offering)}))
+      else:
+        base = r'%s/%s' % (link.slug, theclass.semester.slug)
+        urlpatterns += patterns('',
+                                (base,
+                                 include('course.views.classes'),
+                                 {'theclass': loadClass(theclass, offering)}))

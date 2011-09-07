@@ -80,7 +80,7 @@ class Meeting(models.Model):
   
   summary = models.CharField(max_length=1024)
   description = models.TextField(blank=True, null=True)
-  
+
   def __unicode__(self):
     return "%s : %s-%s, %s : %s" % (str(self.theclass), self.start, self.end, self.location, self.summary)
 
@@ -257,3 +257,55 @@ def genfilename(key, instance, filename):
       (key,
        ''.join(random.choice(string.ascii_letters + string.digits) for x in range(32)),
        os.path.splitext(filename)[1])
+
+class Paper(models.Model):
+  name = models.CharField(max_length=1024)
+  description = models.TextField(blank=True, null=True)
+
+  theclass = models.ManyToManyField('Class', blank=True, null=True)
+  meeting = models.ManyToManyField('Meeting', blank=True, null=True)
+
+  paperfile = models.FileField(upload_to=lambda x, y: genfilename("paper", x, y), blank=True, null=True)
+  paperlink = models.URLField(blank=True, null=True)
+
+  papertitle = models.CharField(max_length=1024, blank=True, null=True)
+  paperauthors= models.TextField(blank=True, null=True)
+
+  def render(self):
+    if self.paperlink != "":
+      link = self.paperlink
+    elif self.paperfile != "":
+      link = self.paperfile.url
+    authors = self.paperauthors.split(",")
+    if len(authors) == 0:
+      name = self.name
+      title = self.papertitle
+    elif len(authors) == 1:
+      name = "%s (%s)" % (self.name, authors[0])
+      title = "%s (%s)" % (self.papertitle, self.paperauthors)
+    else:
+      name = "%s (%s et al.)" % (self.name, authors[0])
+      title = "%s (%s)" % (self.papertitle, self.paperauthors)
+    return '<a href="%s" title="%s" target="_blank">%s</a>' % (link, title, name)
+ 
+  def __unicode__(self):
+    return "%s" % (self.name)
+
+class Slides(models.Model):
+  name = models.CharField(max_length=1024)
+  description = models.TextField(blank=True, null=True)
+
+  meeting = models.ManyToManyField('Meeting', blank=True, null=True)
+
+  slidesfile = models.FileField(upload_to=lambda x, y: genfilename("slides", x, y), blank=True, null=True)
+  slideslink = models.URLField(blank=True, null=True)
+
+  def render(self):
+    if self.slideslink != "":
+      link = self.slideslink
+    elif self.slidesfile != "":
+      link = self.slidesfile.url
+    return '<a href="%s" target="_blank">%s</a>' % (link, self.name)
+ 
+  def __unicode__(self):
+    return "%s" % (self.name)

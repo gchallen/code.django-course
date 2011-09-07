@@ -374,3 +374,8 @@ fieldset
   margin-bottom:0px;
   line-height:110%;
 }
+
+#schedule .entry .papers a {
+  font-weight:normal;
+  color:#191995;
+}

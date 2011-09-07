@@ -30,6 +30,22 @@
       <div class="grid_12 description">
         <span class="summary">{% if meeting.optional %}(Optional) {% endif %}{{ meeting.summary }}:</span>
         <p>{{ meeting.description|safe }}
+        {% if meeting.paper_set.filter %}
+        <div class="papers">
+          <p><strong><u>Papers:</strong></u>
+          {% for paper in meeting.paper_set.filter %}
+            {% if meeting.paper_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ paper.render|safe }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </div>
+        {% endif %}
+        {% if meeting.slides_set.filter %}
+        <div class="slides">
+          <p><strong><u>Slides:</strong></u>
+          {% for slides in meeting.slides_set.filter %}
+            {% if meeting.slides_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ slides.render|safe }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </div>
+        {% endif %}
       </div>
       <div class="clear"></div>
   </div>

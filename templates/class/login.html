@@ -10,7 +10,7 @@
     <div class="clear"></div>
   {% endif %}
  
-  <form action="" method="post">
+  <form action="" method="post">{% csrf_token %}
     <div class="grid_2 prefix_4"> 
       <label for="username">User name:</label>
     </div>

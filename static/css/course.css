@@ -379,3 +379,21 @@ fieldset
   font-weight:normal;
   color:#191995;
 }
+
+#loginform .loginlabel {
+  font-variant:small-caps;
+  font-size:0.9em;
+  font-weight:bold;
+  text-align:right;
+}
+
+#loginform .loginbutton {
+  margin-top:10px;
+  text-align:center;
+}
+
+#loginform .button {
+  font-family:inherit;
+  font-variant:small-caps;
+  font-weight: bold;
+}

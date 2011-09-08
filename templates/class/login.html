@@ -9,23 +9,28 @@
     </div>
     <div class="clear"></div>
   {% endif %}
- 
+
+  <div id="loginform">
   <form action="" method="post">{% csrf_token %}
-    <div class="grid_2 prefix_4"> 
-      <label for="username">User name:</label>
+    <div class="grid_4 prefix_4 loginlabel"> 
+      <label for="username">Username:</label>
     </div>
     <div class="grid_4">
       <input type="text" name="username" value="" id="username">
     </div>
     <div class="clear"></div>
-    <div class="grid_2 prefix_4"> 
+    <div class="grid_4 prefix_4 loginlabel"> 
       <label for="password">Password:</label>
     </div>
     <div class="grid_4">
       <input type="password" name="password" value="" id="password">
     </div>
-    <input type="submit" value="login" />
+    <div class="clear"></div>
+    <div class="grid_8 prefix_4 loginbutton">
+      <input type="submit" value="LOGIN" class="button"/>
+  </div>
     <input type="hidden" name="next" value="{{ next|escape }}" />
   </form>
+  </div>
 
 {% endblock %}

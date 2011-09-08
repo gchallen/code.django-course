@@ -5,6 +5,7 @@ from course.models import University, Department, Offering, Semester
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from datetime import datetime, time
+from django.contrib.auth.views import login as login_view, logout as logout_view
 
 urlpatterns = patterns('course.views.classes',
                        url(r'^/$', 'summary'),
@@ -13,38 +14,47 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/next/$', 'schedulenext', name='schedule-next'),
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
-                       url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'))
+                       url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'),
+                       url(r'^/login/$', 'login', name='course-login'),
+                       url(r'^/logout/$', 'logout', name='course-logout'),
+                      )
+
+def login(request, theclass):
+  theclass.selectedmenulink = 'Login'
+  return login_view(request, template_name='class/login.html', extra_context={'theclass': theclass})
+
+def logout(request, theclass):
+  return logout_view(request)
 
 class MenuLink:
   def __init__(self, name, url, current=False, visible=True):
     self.name = name
     self.url = url
-    self.current = current
     self.visible = visible
 
-def loadLinks(current, visible=None):
+def loadLinks(visible=None):
   menulinks = [MenuLink('Summary', reverse('summary')),
                MenuLink('Schedule', reverse('schedule-default')),
                MenuLink('Assignments', reverse('assignments'))]
-  return initLinks(menulinks, current, visible)
+  return initLinks(menulinks, visible)
 
-def initLinks(menulinks, current, visible=None):
+def initLinks(menulinks, visible=None):
   for menulink in menulinks:
-    if menulink.name == current:
-      menulink.current = True
     if visible != None and menulink.name not in visible:
       menulink.visible = False
   return menulinks
 
 def summary(request, theclass):
-  theclass.menulinks = loadLinks("Summary")
+  theclass.menulinks = loadLinks()
+  theclass.selectedmenulink = 'Summary'
   theclass.submenulinks = None
   return render_to_response('class/summary.html',
                             {'theclass': theclass},
                             context_instance=RequestContext(request))
 
 def assignments(request, theclass, assignment=None):
-  theclass.menulinks = loadLinks("Assignments")
+  theclass.menulinks = loadLinks()
+  theclass.selectedmenulink = 'Assignments'
   theclass.submenulinks = None
   if assignment == None:
     return render_to_response('class/assignments.html',
@@ -92,7 +102,8 @@ def scheduleall(request, theclass, ignored=True):
   return schedule(request, theclass, meetings)
 
 def schedule(request, theclass, meetings):
-  theclass.menulinks = loadLinks("Schedule")
+  theclass.menulinks = loadLinks()
+  theclass.selectedmenulink = 'Schedule'
   return render_to_response('class/schedule.html',
                             {'theclass': theclass,
                              'meetings': meetings},

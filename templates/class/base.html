@@ -25,9 +25,10 @@
   {% block menu %}
 <div id="menu">
   <div class="container_16">
+    <div class="box_14">
     {% for link in theclass.menulinks %}
       {% if link.visible %}
-        {% if link.current %}
+        {% if link.name == theclass.selectedmenulink %}
         <div class="currentlabel grid_2">
           <a href="{{ link.url }}">{{ link.name }}</a>
         </div>
@@ -38,6 +39,24 @@
         {% endif %}
       {% endif %}
     {% endfor %}
+    </div>
+      {% if user.is_authenticated %}
+        {% if theclass.selectedmenulink == 'Logout' %}
+          <div class="currentlabel grid_2">
+        {% else %}
+          <div class="label grid_2">
+        {% endif %}
+            <a href="{% url course-logout %}?next={{ request.path }}">Logout</a>
+          </div>
+      {% else %}
+        {% if theclass.selectedmenulink == 'Login' %}
+          <div class="currentlabel grid_2">
+        {% else %}
+          <div class="label grid_2">
+        {% endif %}
+            <a href="{% url course-login %}?next={{ request.path }}">Login</a>
+          </div>
+      {% endif %}
   </div>
   <div class="clear"></div>
 </div>

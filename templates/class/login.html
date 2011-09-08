@@ -1,0 +1,31 @@
+{% extends "class/base.html" %}
+
+{% block content %}
+  
+  <div class="container_16">
+  {% if form.errors %}
+    <div class="grid_8 prefix_4">
+      <p class="error">Please enter a valid username and password.</p>
+    </div>
+    <div class="clear"></div>
+  {% endif %}
+ 
+  <form action="" method="post">
+    <div class="grid_2 prefix_4"> 
+      <label for="username">User name:</label>
+    </div>
+    <div class="grid_4">
+      <input type="text" name="username" value="" id="username">
+    </div>
+    <div class="clear"></div>
+    <div class="grid_2 prefix_4"> 
+      <label for="password">Password:</label>
+    </div>
+    <div class="grid_4">
+      <input type="password" name="password" value="" id="password">
+    </div>
+    <input type="submit" value="login" />
+    <input type="hidden" name="next" value="{{ next|escape }}" />
+  </form>
+
+{% endblock %}

@@ -31,11 +31,15 @@ urlpatterns = patterns('course.views.classes',
 
 def getclassuser(request, theclass):
   if not request.user.is_authenticated():
+    theclass.classuser = None
     return False
   try:
-    return theclass.users.get(user=request.user)
+    classuser = theclass.users.get(user=request.user)
   except CourseUser.DoesNotExist:
+    theclass.classuser = None
     return False
+  theclass.classuser = classuser
+  return True
 
 @csrf_protect
 @never_cache
@@ -68,6 +72,10 @@ def login(request, theclass, template_name='class/login.html', redirect_field_na
       if not getclassuser(request, theclass):
         current_site = Site.objects.get_current()
         messages.warning(request, 'While you have an account on %s, you are not listed as a member of this class. Please contact <a href="mailto:%s">%s</a> if this is a mistake.' % (current_site.name, theclass.contactemail, theclass.contactemail))
+      else:
+        # 12 Sep 2011 : GWA : TODO : Fix this to work with styling. Skipping for now.
+        # messages.success(request, 'Log on successful.')
+        pass
 
       return HttpResponseRedirect(redirect_to)
     else:

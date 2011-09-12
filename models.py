@@ -1,4 +1,4 @@
-import os, random, string
+import os, random, string, csv, re
 
 from django.db import models
 from django.contrib.sites.models import Site
@@ -73,6 +73,28 @@ class Class(models.Model):
   
   class Meta:
     verbose_name_plural = "classes"
+
+  @classmethod
+  def loadUserCSV(cls, csvfilename):
+    USER_FIELDS = {
+      'firstname': True,
+      'lastname': True,
+      'role': True,
+      'idnumber': False,
+      'email': True,
+    }
+    csvreader = csv.DictReader(open(csvfilename, 'rb'))
+    namemappings = {}
+    for field in csvreader.fieldnames:
+      shortfield = re.sub(r'\s+', '', field)
+      if shortfield in USER_FIELDS.keys():
+        namemappings[field] = shortfield
+
+    for field in USER_FIELDS.keys():
+      if USER_FIELDS[field] and field not in namemappings.values():
+        return None
+    
+    return True
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")
@@ -316,4 +338,29 @@ class Slides(models.Model):
     return "%s" % (self.name)
 
 class CourseUser(models.Model):
-  user = models.OneToOneField(User)
+  user = models.OneToOneField(User, unique=True)
+  link = models.URLField(blank=True, null=True)
+  idnumber = models.CharField(max_length=32, blank=True, null=True)
+
+  ROLE_CHOICES = (
+    ('Faculty', 'Faculty'),
+    ('Staff', 'Staff'),
+    ('Student', 'Student'),
+  )
+  role = models.CharField(max_length=16, choices=ROLE_CHOICES)
+
+  @classmethod
+  def create(cls, theclass, firstname, lastname, email, role, idnumber="", link=""):
+    try:
+      user = User.objects.get(email=email)
+    except User.DoesNotExist:
+      user = User.objects.create_user(email,
+                                      email,
+                                      ''.join(random.choice(string.letters + string.digits + string.punctuation) for x in range(32)))
+    user.firstname = firstname
+    user.lastname = lastname
+    user.save()
+    courseuser = CourseUser(user=user, role=role, idnumber=idnumber, link=link)
+    courseuser.save()
+    theclass.users.add(courseuser)
+    return courseuser

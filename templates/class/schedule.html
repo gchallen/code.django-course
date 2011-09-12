@@ -32,7 +32,7 @@
         <p>{{ meeting.description|safe }}
         {% if meeting.slides_set.filter %}
         <div class="slides">
-          <p><strong><u>Slides:</strong></u>
+          <p><strong><u>Slides</u>:</strong>
           {% for slides in meeting.slides_set.filter %}
             {% if meeting.slides_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ slides.render|safe }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
@@ -40,7 +40,7 @@
         {% endif %}
         {% if meeting.paper_set.filter %}
         <div class="papers">
-          <p><strong><u>Papers:</strong></u>
+          <p><strong><u>Papers</u>:</strong>
           {% for paper in meeting.paper_set.filter %}
             {% if meeting.paper_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ paper.render|safe }}{% if not forloop.last %}, {% endif %}
         {% endfor %}

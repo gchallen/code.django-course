@@ -65,10 +65,10 @@ def assignments(request, theclass, assignment=None):
                               {'theclass': theclass},
                               context_instance=RequestContext(request))
 
-def loadScheduleSubLinks(current, visible=None):
+def loadScheduleSubLinks(visible=None):
   menulinks = [MenuLink('Next', reverse('schedule-next')),
                MenuLink('All', reverse('schedule-all'))]
-  return initLinks(menulinks, current, visible)
+  return initLinks(menulinks, visible)
 
 def scheduledefault(request, theclass):
   start = datetime.now()
@@ -85,7 +85,8 @@ def schedulenext(request, theclass):
   meetings = theclass.meeting_set.filter(end__gte=start, end__lte=end).order_by('start')
   if len(meetings) > 0:
     meetings[0].nextmeeting = True
-  theclass.submenulinks = loadScheduleSubLinks('Next')
+  theclass.submenulinks = loadScheduleSubLinks()
+  theclass.selectedsubmenulink = 'Next'
   return schedule(request, theclass, meetings)
 
 def scheduleall(request, theclass, ignored=True):
@@ -98,7 +99,8 @@ def scheduleall(request, theclass, ignored=True):
       meeting.nextmeeting = True
       break
 
-  theclass.submenulinks = loadScheduleSubLinks('All')
+  theclass.submenulinks = loadScheduleSubLinks()
+  theclass.selectedsubmenulink = 'All'
   return schedule(request, theclass, meetings)
 
 def schedule(request, theclass, meetings):

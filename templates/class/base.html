@@ -67,7 +67,7 @@
   <div class="container_16">
     {% for link in theclass.submenulinks %}
       {% if link.visible %}
-        {% if link.current %}
+        {% if link.name == theclass.selectedsubmenulink %}
         <div class="currentlabel grid_2">
           <a href="{{ link.url }}">{{ link.name }}</a>
         </div>

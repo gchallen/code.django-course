@@ -82,7 +82,20 @@
   <div class="clear"></div>
 </div>
 {% endif %}
-  {% endblock %}
+{% endblock %}
+{% block messages %}
+<div class="clear"></div>
+{% if messages %}
+<div id="messages">
+  <div class="container_16">
+    <div class="grid_12 prefix_2">
+    {% for message in messages %}
+    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}><strong><span style="text-transform:uppercase">{{ message.tags }}:</span></strong> {{ message|safe }}
+    {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
   <div class="clear"></div>
   <div id=content>
     {% block content %}{% endblock %}

@@ -1,11 +1,21 @@
+import urlparse
+
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
-from django.http import HttpResponse, Http404
-from course.models import University, Department, Offering, Semester
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from course.models import University, Department, Offering, Semester, CourseUser
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from datetime import datetime, time
-from django.contrib.auth.views import login as login_view, logout as logout_view
+
+from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
+from django.contrib.auth.views import logout as logout_view
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.sites.models import get_current_site
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
+from django.contrib.sites.models import Site
 
 urlpatterns = patterns('course.views.classes',
                        url(r'^/$', 'summary'),
@@ -19,9 +29,64 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/logout/$', 'logout', name='course-logout'),
                       )
 
-def login(request, theclass):
-  theclass.selectedmenulink = 'Login'
-  return login_view(request, template_name='class/login.html', extra_context={'theclass': theclass})
+def getclassuser(request, theclass):
+  if not request.user.is_authenticated():
+    return False
+  try:
+    return theclass.users.get(user=request.user)
+  except CourseUser.DoesNotExist:
+    return False
+
+@csrf_protect
+@never_cache
+def login(request, theclass, template_name='class/login.html', redirect_field_name=REDIRECT_FIELD_NAME, authentication_form=AuthenticationForm):
+    """
+    Displays the login form and handles the login action.
+    """
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
+
+    if request.method == "POST":
+      form = authentication_form(data=request.POST)
+      if form.is_valid():
+        netloc = urlparse.urlparse(redirect_to)[1]
+
+      # Use default setting if redirect_to is empty
+      if not redirect_to:
+          redirect_to = settings.LOGIN_REDIRECT_URL
+
+      # Security check -- don't allow redirection to a different
+      # host.
+      elif netloc and netloc != request.get_host():
+          redirect_to = settings.LOGIN_REDIRECT_URL
+
+      # Okay, security checks complete. Log the user in.
+      auth_login(request, form.get_user())
+
+      if request.session.test_cookie_worked():
+        request.session.delete_test_cookie()
+
+      if not getclassuser(request, theclass):
+        current_site = Site.objects.get_current()
+        messages.warning(request, 'While you have an account on %s, you are not listed as a member of this class. Please contact <a href="mailto:%s">%s</a> if this is a mistake.' % (current_site.name, theclass.contactemail, theclass.contactemail))
+
+      return HttpResponseRedirect(redirect_to)
+    else:
+      form = authentication_form(request)
+
+    request.session.set_test_cookie()
+
+    current_site = get_current_site(request)
+
+    context = {
+        'form': form,
+        redirect_field_name: redirect_to,
+        'site': current_site,
+        'site_name': current_site.name,
+        'theclass' : theclass,
+    }
+    theclass.selectedmenulink = 'Login'
+    return render_to_response(template_name, context,
+                              context_instance=RequestContext(request))
 
 def logout(request, theclass):
   return logout_view(request)

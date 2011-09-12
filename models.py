@@ -1,7 +1,10 @@
+import os, random, string
+
 from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
-import os.path, random, string
+from django.contrib.auth.models import User
+
 
 # 05 Aug 2011 : GWA : TODO (Long term) : Move to photologue.
 
@@ -61,7 +64,9 @@ class Class(models.Model):
 
   semester = models.ForeignKey('Semester')
   overview = models.TextField(blank=True, null=True)
-  faculty = models.ManyToManyField('Faculty')
+  faculty = models.ManyToManyField('Faculty', blank=True, null=True)
+  users = models.ManyToManyField('CourseUser', blank=True, null=True)
+  contactemail = models.EmailField()
 
   def __unicode__(self):
     return "%s (%s)" % (str(self.course), str(self.semester))
@@ -309,3 +314,6 @@ class Slides(models.Model):
  
   def __unicode__(self):
     return "%s" % (self.name)
+
+class CourseUser(models.Model):
+  user = models.OneToOneField(User)

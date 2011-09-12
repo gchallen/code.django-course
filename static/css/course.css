@@ -397,3 +397,20 @@ fieldset
   font-variant:small-caps;
   font-weight: bold;
 }
+
+.error {
+  font-weight:bold;
+  color:firebrick;
+  font-variant:small-caps;
+}
+
+#login .error {
+  text-align: center;
+}
+
+#messages p.warning {
+  width:inherit;
+  border: 2px solid red;
+  padding: 5px;
+  color: firebrick;
+}

@@ -364,6 +364,23 @@ class CourseUser(models.Model):
     courseuser.save()
     theclass.users.add(courseuser)
     return courseuser
-  
+ 
+  def resetpassword(self, from_email, email_template_name='registration/password_reset_email.html'):
+    from django.http import QueryDict
+    from django.contrib.auth.forms import PasswordResetForm
+    from django.contrib.auth.tokens import default_token_generator
+    import copy
+    resetpost = copy.copy(QueryDict(""))
+    resetpost['email'] = self.user.email
+    resetform = PasswordResetForm(resetpost)
+    assert resetform.is_valid()
+    opts = {
+      'use_https': False,
+      'token_generator': default_token_generator,
+      'from_email': from_email,
+      'email_template_name': email_template_name
+    }
+    form.save(**opts)
+
   def __unicode__(self):
     return "%s" % (self.user.email)

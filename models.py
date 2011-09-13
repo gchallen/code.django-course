@@ -364,3 +364,6 @@ class CourseUser(models.Model):
     courseuser.save()
     theclass.users.add(courseuser)
     return courseuser
+  
+  def __unicode__(self):
+    return "%s" % (self.user.email)

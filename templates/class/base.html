@@ -18,7 +18,7 @@
     <a href="{{ theclass.department.link }}">
       <img src="{{ theclass.department.logo.url }}" width="{{ theclass.department.logo.width }}px" height="{{ theclass.department.logo.height}}px" alt="{{ theclass.department.name }}">
     </a>
-    <h1><a href="{% url course.views.classes.summary %}">{{ theclass.department.shortname}}{{ theclass.theoffering.number }}: {{ theclass.title }}</a> </h1>
+    <h1><a href="{% url course:summary %}">{{ theclass.department.shortname}}{{ theclass.theoffering.number }}: {{ theclass.title }}</a> </h1>
     <h2> {{ theclass.semester.name }}&mdash;{{ theclass.classtitle }} </h2>
   </div>
   <div class="clear"></div>
@@ -46,7 +46,7 @@
         {% else %}
           <div class="label grid_2">
         {% endif %}
-            <a href="{% url course-logout %}?next={{ request.path }}">Logout</a>
+            <a href="{% url course:logout %}?next={{ request.path }}">Logout</a>
           </div>
       {% else %}
         {% if theclass.selectedmenulink == 'Login' %}
@@ -54,7 +54,7 @@
         {% else %}
           <div class="label grid_2">
         {% endif %}
-            <a href="{% url course-login %}?next={{ request.path }}">Login</a>
+            <a href="{% url course:login %}?next={{ request.path }}">Login</a>
           </div>
       {% endif %}
   </div>

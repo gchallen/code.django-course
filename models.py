@@ -380,7 +380,7 @@ class CourseUser(models.Model):
       'from_email': from_email,
       'email_template_name': email_template_name
     }
-    form.save(**opts)
+    resetform.save(**opts)
 
   def __unicode__(self):
     return "%s" % (self.user.email)

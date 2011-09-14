@@ -17,6 +17,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.sites.models import Site
 
+# 13 Sep 2011 : GWA : TODO : Rename module to class, not classes.
+
 urlpatterns = patterns('course.views.classes',
                        url(r'^/$', 'summary'),
                        url(r'^/summary/$', 'summary', name='summary'),
@@ -25,8 +27,10 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'),
-                       url(r'^/login/$', 'login', name='course-login'),
-                       url(r'^/logout/$', 'logout', name='course-logout'),
+                       # 13 Sep 2011 GWA : TODO : Rename to class-*.
+                       url(r'^/login/$', 'login', name='login'),
+                       url(r'^/logout/$', 'logout', name='logout'),
+                       url(r'^/passwordresetconfirm/$', 'passwordresetconfirm', name='password_reset_confirm'),
                       )
 
 def getclassuser(request, theclass):
@@ -94,7 +98,7 @@ def login(request, theclass, template_name='class/login.html', redirect_field_na
     }
     theclass.selectedmenulink = 'Login'
     return render_to_response(template_name, context,
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def logout(request, theclass):
   return logout_view(request)
@@ -105,10 +109,10 @@ class MenuLink:
     self.url = url
     self.visible = visible
 
-def loadLinks(visible=None):
-  menulinks = [MenuLink('Summary', reverse('summary')),
-               MenuLink('Schedule', reverse('schedule-default')),
-               MenuLink('Assignments', reverse('assignments'))]
+def loadLinks(theclass, visible=None):
+  menulinks = [MenuLink('Summary', reverse('course:summary')),
+               MenuLink('Schedule', reverse('course:schedule-default')),
+               MenuLink('Assignments', reverse('course:assignments'))]
   return initLinks(menulinks, visible)
 
 def initLinks(menulinks, visible=None):
@@ -118,25 +122,25 @@ def initLinks(menulinks, visible=None):
   return menulinks
 
 def summary(request, theclass):
-  theclass.menulinks = loadLinks()
+  theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Summary'
   theclass.submenulinks = None
   return render_to_response('class/summary.html',
                             {'theclass': theclass},
-                            context_instance=RequestContext(request))
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def assignments(request, theclass, assignment=None):
-  theclass.menulinks = loadLinks()
+  theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Assignments'
   theclass.submenulinks = None
   if assignment == None:
     return render_to_response('class/assignments.html',
                               {'theclass': theclass},
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
   else:
     return render_to_response('class/assignment.html',
                               {'theclass': theclass},
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def loadScheduleSubLinks(visible=None):
   menulinks = [MenuLink('Next', reverse('schedule-next')),
@@ -177,13 +181,21 @@ def scheduleall(request, theclass, ignored=True):
   return schedule(request, theclass, meetings)
 
 def schedule(request, theclass, meetings):
-  theclass.menulinks = loadLinks()
+  theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Schedule'
   return render_to_response('class/schedule.html',
                             {'theclass': theclass,
                              'meetings': meetings},
-                            context_instance=RequestContext(request))
-
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def staff(request, theclass):
   raise Http404;
+
+def passwordresetconfirm(request, theclass, uidb36=None, token=None):
+  return password_reset_confirm(request,
+                                uidb36,
+                                token,
+                                template_name='class/password_reset_confirm.html',
+                                # 13 Sep 2011 : GWA : TODO : Fix redirect.
+                                # post_reset_redirect='',
+                                extra_context={'theclass' : theclass})

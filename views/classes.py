@@ -142,8 +142,8 @@ def assignments(request, theclass, assignment=None):
                               context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def loadScheduleSubLinks(visible=None):
-  menulinks = [MenuLink('Next', reverse('schedule-next')),
-               MenuLink('All', reverse('schedule-all'))]
+  menulinks = [MenuLink('Next', reverse('course:schedule-next')),
+               MenuLink('All', reverse('course:schedule-all'))]
   return initLinks(menulinks, visible)
 
 def scheduledefault(request, theclass):

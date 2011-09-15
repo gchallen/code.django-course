@@ -2,6 +2,7 @@ import os, random, string, csv, re
 
 from django.db import models
 from django.contrib.sites.models import Site
+from django.conf import settings as site_settings
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.auth.models import User
 from django.template import Context, loader
@@ -88,6 +89,18 @@ class Class(models.Model):
       except Exception:
         current_app = None
 
+    # 14 Sep 2011 : GWA : Try to handle the common, single-offering case.
+
+    if current_app == None:
+      try:
+        o = self.offering_set.get()
+        l = o.offeringlink_set.filter(site=site_settings.SITE_ID)
+        if len(l) == 1:
+          link = l[0]
+          current_app = r"%s_%s" % (link.slug, self.semester.slug)
+      except Exception:
+        current_app = None
+    
     from django.core.mail import send_mail
 
     current_site = Site.objects.get_current()
@@ -107,27 +120,43 @@ class Class(models.Model):
               self.contactemail,
               [courseuser.user.email])
 
-  @classmethod
-  def loadUserCSV(cls, csvfilename):
+  def loadUserCSV(self, csvfilename):
     USER_FIELDS = {
       'firstname': True,
       'lastname': True,
+      'email': True,
       'role': True,
       'idnumber': False,
-      'email': True,
     }
     csvreader = csv.DictReader(open(csvfilename, 'rb'))
     namemappings = {}
     for field in csvreader.fieldnames:
-      shortfield = re.sub(r'\s+', '', field)
+      shortfield = re.sub(r'\s+', '', field).lower()
       if shortfield in USER_FIELDS.keys():
-        namemappings[field] = shortfield
+        namemappings[shortfield] = field
 
     for field in USER_FIELDS.keys():
-      if USER_FIELDS[field] and field not in namemappings.values():
-        return None
+      if USER_FIELDS[field] and field not in namemappings.keys():
+        return False
     
-    return True
+    for row in csvreader:
+      firstname = row[namemappings['firstname']]
+      lastname = row[namemappings['lastname']]
+      email = row[namemappings['email']]
+      role = row[namemappings['role']]
+      try:
+        idnumber = row[namemappings['idnumber']]
+      except Exception:
+        idnumber = ""
+
+      existing = self.users.filter(user__email__exact=email)
+      if len(existing) == 0:
+        CourseUser.create(self,
+                          firstname,
+                          lastname,
+                          email,
+                          role,
+                          idnumber=idnumber)
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")
@@ -390,8 +419,8 @@ class CourseUser(models.Model):
       user = User.objects.create_user(email,
                                       email,
                                       ''.join(random.choice(string.letters + string.digits + string.punctuation) for x in range(32)))
-    user.firstname = firstname
-    user.lastname = lastname
+    user.first_name = firstname
+    user.last_name = lastname
     user.save()
     courseuser = CourseUser(user=user, role=role, idnumber=idnumber, link=link)
     courseuser.save()
@@ -400,4 +429,4 @@ class CourseUser(models.Model):
  
 
   def __unicode__(self):
-    return "%s" % (self.user.email)
+    return "%s %s <%s> (%s)" % (self.user.first_name, self.user.last_name, self.user.email, self.role)

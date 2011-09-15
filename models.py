@@ -4,7 +4,9 @@ from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.auth.models import User
-
+from django.template import Context, loader
+from django.utils.http import int_to_base36
+from django.contrib.auth.tokens import default_token_generator
 
 # 05 Aug 2011 : GWA : TODO (Long term) : Move to photologue.
 
@@ -73,6 +75,37 @@ class Class(models.Model):
   
   class Meta:
     verbose_name_plural = "classes"
+  
+  def resetpassword(self, courseuser, current_app=None):
+
+    # 14 Sep 2011 : GWA : Should be a user affiliated with this class.
+
+    assert courseuser in self.users.filter()
+
+    if current_app == None:
+      try:
+        current_app = self.app_name
+      except Exception:
+        current_app = None
+
+    from django.core.mail import send_mail
+
+    current_site = Site.objects.get_current()
+    t = loader.get_template('class/password_reset_email.html')
+    c = {
+      'email' : courseuser.user.email,
+      'domain' : current_site.domain,
+      'site_name' : current_site.name,
+      'uid' : int_to_base36(courseuser.user.id),
+      'user' : courseuser.user,
+      'protocol' : 'http',
+      'token' : default_token_generator.make_token(courseuser.user),
+    }
+    print current_app
+    send_mail("Password reset",
+              t.render(Context(c, current_app=current_app)),
+              self.contactemail,
+              [courseuser.user.email])
 
   @classmethod
   def loadUserCSV(cls, csvfilename):
@@ -365,22 +398,6 @@ class CourseUser(models.Model):
     theclass.users.add(courseuser)
     return courseuser
  
-  def resetpassword(self, from_email, email_template_name='registration/password_reset_email.html'):
-    from django.http import QueryDict
-    from django.contrib.auth.forms import PasswordResetForm
-    from django.contrib.auth.tokens import default_token_generator
-    import copy
-    resetpost = copy.copy(QueryDict(""))
-    resetpost['email'] = self.user.email
-    resetform = PasswordResetForm(resetpost)
-    assert resetform.is_valid()
-    opts = {
-      'use_https': False,
-      'token_generator': default_token_generator,
-      'from_email': from_email,
-      'email_template_name': email_template_name
-    }
-    resetform.save(**opts)
 
   def __unicode__(self):
     return "%s" % (self.user.email)

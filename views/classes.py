@@ -27,10 +27,9 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'),
-                       # 13 Sep 2011 GWA : TODO : Rename to class-*.
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
-                       url(r'^/passwordresetconfirm/$', 'passwordresetconfirm', name='password_reset_confirm'),
+                       url(r'^/reset/(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', 'reset', name='reset'), 
                       )
 
 def getclassuser(request, theclass):
@@ -191,7 +190,7 @@ def schedule(request, theclass, meetings):
 def staff(request, theclass):
   raise Http404;
 
-def passwordresetconfirm(request, theclass, uidb36=None, token=None):
+def reset(request, theclass, uidb36=None, token=None):
   return password_reset_confirm(request,
                                 uidb36,
                                 token,

@@ -2,9 +2,9 @@
 
 {% block content %}
 
-{% if validlink %}
 <div id="login">
 <div class="container_16">
+{% if validlink %}
   {% if form.errors %}
     <div class="grid_8 prefix_4">
       <p class="error">Please enter a valid username and password.</p>
@@ -37,11 +37,15 @@
     </div>
   </form>
   </div>
+  {% else %}
+  <div class="grid_8 prefix_4">
+    <p class="warning">
+      Invalid password reset link.
+    </p>
+  </div>
+  <div class="clear"></div>
+  {% endif %}
 </div>
 </div>
-
-{% else %}
-The password reset link was invalid
-{% endif %}
 
 {% endblock %}

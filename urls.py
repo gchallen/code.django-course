@@ -36,6 +36,12 @@ for offering in Offering.on_site.all():
   for link in offering.offeringlink_set.filter(site=site_settings.SITE_ID):
     for theclass in offering.classes.all():
       theclass.app_name = r"%s_%s" % (link.slug, theclass.semester.slug)
+      
+      theclass.menulinks = None
+      theclass.subumenulinks = None
+      theclass.selectedmenulink = ""
+      theclass.selectedsubmenulink = ""
+
       if theclass.semester.current == True:
         base = r'%s' % (link.slug)
         urlpatterns += patterns('',

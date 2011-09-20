@@ -418,7 +418,7 @@ fieldset
   text-align: center;
 }
 
-#messages p.warning {
+p.warning {
   width:inherit;
   border: 2px solid red;
   padding: 5px;

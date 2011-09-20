@@ -104,7 +104,7 @@ class Class(models.Model):
     from django.core.mail import send_mail
 
     current_site = Site.objects.get_current()
-    t = loader.get_template('class/password_reset_email.html')
+    t = loader.get_template('class/reset/email.html')
     c = {
       'email' : courseuser.user.email,
       'domain' : current_site.domain,

@@ -1,0 +1,47 @@
+{% extends "class/base.html" %}
+
+{% block content %}
+
+{% if validlink %}
+<div id="login">
+<div class="container_16">
+  {% if form.errors %}
+    <div class="grid_8 prefix_4">
+      <p class="error">Please enter a valid username and password.</p>
+    </div>
+    <div class="clear"></div>
+  {% endif %}
+  <div id="loginform">
+  <div class="grid_8 prefix_4">
+    <p>Please enter and confirm your new password.
+  </div>
+  <div class="clear"></div>
+
+  <form action="" method="post">{% csrf_token %}
+    <div class="grid_4 prefix_4 loginlabel">
+      <label for="id_new_password1">New Password:</label>
+    </div>
+    <div class="grid_4">
+      <input type="password" name="new_password1" id="id_new_password1" />
+    </div>
+    <div class="clear"></div>
+    <div class="grid_4 prefix_4 loginlabel">
+      <label for="id_new_password2">Confirm New Password:</label>
+    </div>
+    <div class="grid_4">
+      <input type="password" name="new_password2" id="id_new_password2" />
+    </div>
+    <div class="clear"></div>
+    <div class="grid_8 prefix_4 loginbutton">
+      <input type="submit" value="SUBMIT" />
+    </div>
+  </form>
+  </div>
+</div>
+</div>
+
+{% else %}
+The password reset link was invalid
+{% endif %}
+
+{% endblock %}

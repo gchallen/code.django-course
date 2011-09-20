@@ -387,6 +387,16 @@ fieldset
   text-align:right;
 }
 
+#loginform label {
+  padding-top:5px;
+  display:block;
+}
+
+#loginform input {
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
 #loginform .loginbutton {
   margin-top:10px;
   text-align:center;

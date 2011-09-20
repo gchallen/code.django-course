@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from datetime import datetime, time
 
 from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
-from django.contrib.auth.views import logout as logout_view
+from django.contrib.auth.views import logout as logout_view, password_reset_confirm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.models import get_current_site
 from django.views.decorators.cache import never_cache
@@ -29,6 +29,7 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
+                       url(r'^/reset/complete/$', 'reset_complete', name='reset-complete'),
                        url(r'^/reset/(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', 'reset', name='reset'), 
                       )
 
@@ -59,12 +60,12 @@ def login(request, theclass, template_name='class/login.html', redirect_field_na
 
       # Use default setting if redirect_to is empty
       if not redirect_to:
-          redirect_to = settings.LOGIN_REDIRECT_URL
+        redirect_to = reverse('course:summary')
 
       # Security check -- don't allow redirection to a different
       # host.
       elif netloc and netloc != request.get_host():
-          redirect_to = settings.LOGIN_REDIRECT_URL
+        redirect_to = reverse('course:summary')
 
       # Okay, security checks complete. Log the user in.
       auth_login(request, form.get_user())
@@ -194,7 +195,10 @@ def reset(request, theclass, uidb36=None, token=None):
   return password_reset_confirm(request,
                                 uidb36,
                                 token,
-                                template_name='class/password_reset_confirm.html',
-                                # 13 Sep 2011 : GWA : TODO : Fix redirect.
-                                # post_reset_redirect='',
+                                template_name='class/reset/confirm.html',
+                                post_reset_redirect=reverse('course:reset-complete'),
                                 extra_context={'theclass' : theclass})
+
+def reset_complete(request, theclass):
+  return render_to_response('class/reset/complete.html',
+                            context_instance=RequestContext(request, current_app=theclass.app_name))

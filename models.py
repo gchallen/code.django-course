@@ -114,7 +114,6 @@ class Class(models.Model):
       'protocol' : 'http',
       'token' : default_token_generator.make_token(courseuser.user),
     }
-    print current_app
     send_mail("Password reset",
               t.render(Context(c, current_app=current_app)),
               self.contactemail,

@@ -76,7 +76,25 @@ class Class(models.Model):
   
   class Meta:
     verbose_name_plural = "classes"
-  
+ 
+  def resetlinks(self):
+    try:
+      theclass.menulinks = None
+    except Exception:
+      pass
+    try:
+      theclass.submenulinks = None
+    except Exception:
+      pass
+    try:
+      theclass.selectedmenulink = ""
+    except Exception:
+      pass
+    try:
+      theclass.selectedsubmenulink = ""
+    except Exception:
+      pass
+
   def resetpassword(self, courseuser, current_app=None):
 
     # 14 Sep 2011 : GWA : Should be a user affiliated with this class.
@@ -159,6 +177,7 @@ class Class(models.Model):
                           email,
                           role,
                           idnumber=idnumber)
+
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")

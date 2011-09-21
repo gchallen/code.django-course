@@ -61,30 +61,28 @@ def login(request, theclass, template_name='class/login.html', redirect_field_na
       if form.is_valid():
         netloc = urlparse.urlparse(redirect_to)[1]
 
-      # Use default setting if redirect_to is empty
-      if not redirect_to:
-        redirect_to = reverse('course:summary')
+        # Use default setting if redirect_to is empty
+        if not redirect_to:
+          redirect_to = reverse('course:summary')
 
-      # Security check -- don't allow redirection to a different
-      # host.
-      elif netloc and netloc != request.get_host():
-        redirect_to = reverse('course:summary')
+        # Security check -- don't allow redirection to a different
+        # host.
+        elif netloc and netloc != request.get_host():
+          redirect_to = reverse('course:summary')
 
-      # Okay, security checks complete. Log the user in.
-      auth_login(request, form.get_user())
+        # Okay, security checks complete. Log the user in.
+        auth_login(request, form.get_user())
 
-      if request.session.test_cookie_worked():
-        request.session.delete_test_cookie()
+        if request.session.test_cookie_worked():
+          request.session.delete_test_cookie()
 
-      if not getclassuser(request, theclass):
-        current_site = Site.objects.get_current()
-        messages.warning(request, 'While you have an account on %s, you are not listed as a member of this class. Please contact <a href="mailto:%s">%s</a> if this is a mistake.' % (current_site.name, theclass.contactemail, theclass.contactemail))
-      else:
-        # 12 Sep 2011 : GWA : TODO : Fix this to work with styling. Skipping for now.
-        # messages.success(request, 'Log on successful.')
-        pass
+        if not getclassuser(request, theclass):
+          current_site = Site.objects.get_current()
+          messages.warning(request, 'While you have an account on %s, you are not listed as a member of this class. Please contact <a href="mailto:%s">%s</a> if this is a mistake.' % (current_site.name, theclass.contactemail, theclass.contactemail))
+        else:
+          messages.success(request, 'Log on successful.')
 
-      return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(redirect_to)
     else:
       form = authentication_form(request)
 
@@ -195,69 +193,71 @@ def staff(request, theclass):
   raise Http404;
 
 def reset(request, theclass, uidb36=None, token=None):
-    
-    # 21 Sep 2011 : GWA : Stolen from contrib/auth/views.py. Our version also
-    #               logs the user in and sends a message on successful password reset.
-    
-    """
-    View that checks the hash in a password reset link and presents a
-    form for entering a new password.
-    """
+  theclass.resetlinks()
+  
+  # 21 Sep 2011 : GWA : Stolen from contrib/auth/views.py. Our version also
+  #               logs the user in and sends a message on successful password reset.
+  
+  """
+  View that checks the hash in a password reset link and presents a
+  form for entering a new password.
+  """
 
-    assert uidb36 is not None and token is not None # checked by URLconf
+  assert uidb36 is not None and token is not None # checked by URLconf
 
-    # 21 Sep 2011 : GWA : On successful reset we log the user in and redirect to the course summary page.
+  # 21 Sep 2011 : GWA : On successful reset we log the user in and redirect to the course summary page.
 
-    post_reset_redirect = reverse('course:summary')
-    try:
-      uid_int = base36_to_int(uidb36)
+  post_reset_redirect = reverse('course:summary')
+  try:
+    uid_int = base36_to_int(uidb36)
 
-      # 21 Sep 2011 : GWA : Here we look in the class object to see if this user is a part of this class. Otherwise fail.
+    # 21 Sep 2011 : GWA : Here we look in the class object to see if this user is a part of this class. Otherwise fail.
 
-      user = theclass.users.get(user__id=uid_int).user
+    user = theclass.users.get(user__id=uid_int).user
 
-    # 21 Sep 2011 : GWA : Changed this to a general exception; hopefully that's still OK.
+  # 21 Sep 2011 : GWA : Changed this to a general exception; hopefully that's still OK.
 
-    except Exception:
-      user = None
+  except Exception:
+    user = None
 
-    logging.debug(str(user))
-    logging.debug(token)
-    logging.debug(token_generator.check_token(user, token))
-    
-    if user is not None and token_generator.check_token(user, token):
-        validlink = True
-        if request.method == 'POST':
-            form = SetPasswordForm(user, request.POST)
-            if form.is_valid():
-                form.save()
-                user = authenticate(username=user.username, password=form.cleaned_data['new_password1'])
-                auth_login(request, user)
+  logging.debug(str(user))
+  logging.debug(token)
+  logging.debug(token_generator.check_token(user, token))
+  
+  if user is not None and token_generator.check_token(user, token):
+      validlink = True
+      if request.method == 'POST':
+          form = SetPasswordForm(user, request.POST)
+          if form.is_valid():
+              form.save()
+              user = authenticate(username=user.username, password=form.cleaned_data['new_password1'])
+              auth_login(request, user)
 
-                if request.session.test_cookie_worked():
-                  request.session.delete_test_cookie()
-                
-                messages.success(request, "Your password has been reset successfully. You are now logged in.")
+              if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+              
+              messages.success(request, "Your password has been reset successfully. You are now logged in.")
 
-                return HttpResponseRedirect(post_reset_redirect)
-        else:
+              return HttpResponseRedirect(post_reset_redirect)
+      else:
 
-            # 21 Sep 2011 : GWA : Added so that we can log user in above.
+          # 21 Sep 2011 : GWA : Added so that we can log user in above.
 
-            request.session.set_test_cookie()
-            form = SetPasswordForm(None)
-    else:
-        validlink = False
-        form = None
-    context = {
-        'form': form,
-        'validlink': validlink,
-    }
-    context.update({'theclass' : theclass})
-    return render_to_response('class/reset/confirm.html',
-                              context,
-                              context_instance=RequestContext(request, current_app=theclass.app_name))
+          request.session.set_test_cookie()
+          form = SetPasswordForm(None)
+  else:
+      validlink = False
+      form = None
+  context = {
+      'form': form,
+      'validlink': validlink,
+  }
+  context.update({'theclass' : theclass})
+  return render_to_response('class/reset/confirm.html',
+                            context,
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def reset_complete(request, theclass):
+  theclass.resetlinks()
   return render_to_response('class/reset/complete.html',
                             context_instance=RequestContext(request, current_app=theclass.app_name))

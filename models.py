@@ -94,6 +94,8 @@ class Class(models.Model):
     if current_app == None:
       try:
         o = self.offering_set.get()
+        self.theoffering = o
+        self.department = o.department
         l = o.offeringlink_set.filter(site=site_settings.SITE_ID)
         if len(l) == 1:
           link = l[0]
@@ -113,6 +115,7 @@ class Class(models.Model):
       'user' : courseuser.user,
       'protocol' : 'http',
       'token' : default_token_generator.make_token(courseuser.user),
+      'theclass': self,
     }
     send_mail("Password reset",
               t.render(Context(c, current_app=current_app)),

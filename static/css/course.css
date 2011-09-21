@@ -424,3 +424,10 @@ p.warning {
   padding: 5px;
   color: firebrick;
 }
+
+p.success {
+  width:inherit;
+  border: 2px solid DarkGreen;
+  padding: 5px;
+  color: green;
+}

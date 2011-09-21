@@ -1,4 +1,4 @@
-import urlparse
+import urlparse,logging
 
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
@@ -8,14 +8,17 @@ from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from datetime import datetime, time
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
+from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login, authenticate
 from django.contrib.auth.views import logout as logout_view, password_reset_confirm
+from django.contrib.auth.tokens import default_token_generator as token_generator
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.models import get_current_site
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.sites.models import Site
+from django.utils.http import base36_to_int
+from django.contrib.auth.forms import SetPasswordForm
 
 # 13 Sep 2011 : GWA : TODO : Rename module to class, not classes.
 
@@ -192,12 +195,68 @@ def staff(request, theclass):
   raise Http404;
 
 def reset(request, theclass, uidb36=None, token=None):
-  return password_reset_confirm(request,
-                                uidb36,
-                                token,
-                                template_name='class/reset/confirm.html',
-                                post_reset_redirect=reverse('course:reset-complete'),
-                                extra_context={'theclass' : theclass})
+    
+    # 21 Sep 2011 : GWA : Stolen from contrib/auth/views.py. Our version also
+    #               logs the user in and sends a message on successful password reset.
+    
+    """
+    View that checks the hash in a password reset link and presents a
+    form for entering a new password.
+    """
+
+    assert uidb36 is not None and token is not None # checked by URLconf
+
+    # 21 Sep 2011 : GWA : On successful reset we log the user in and redirect to the course summary page.
+
+    post_reset_redirect = reverse('course:summary')
+    try:
+      uid_int = base36_to_int(uidb36)
+
+      # 21 Sep 2011 : GWA : Here we look in the class object to see if this user is a part of this class. Otherwise fail.
+
+      user = theclass.users.get(user__id=uid_int).user
+
+    # 21 Sep 2011 : GWA : Changed this to a general exception; hopefully that's still OK.
+
+    except Exception:
+      user = None
+
+    logging.debug(str(user))
+    logging.debug(token)
+    logging.debug(token_generator.check_token(user, token))
+    
+    if user is not None and token_generator.check_token(user, token):
+        validlink = True
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                user = authenticate(username=user.username, password=form.cleaned_data['new_password1'])
+                auth_login(request, user)
+
+                if request.session.test_cookie_worked():
+                  request.session.delete_test_cookie()
+                
+                messages.success(request, "Your password has been reset successfully. You are now logged in.")
+
+                return HttpResponseRedirect(post_reset_redirect)
+        else:
+
+            # 21 Sep 2011 : GWA : Added so that we can log user in above.
+
+            request.session.set_test_cookie()
+            form = SetPasswordForm(None)
+    else:
+        validlink = False
+        form = None
+    context = {
+        'form': form,
+        'validlink': validlink,
+    }
+    context.update({'theclass' : theclass})
+    return render_to_response('class/reset/confirm.html',
+                              context,
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def reset_complete(request, theclass):
   return render_to_response('class/reset/complete.html',

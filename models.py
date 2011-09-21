@@ -135,7 +135,7 @@ class Class(models.Model):
       'token' : default_token_generator.make_token(courseuser.user),
       'theclass': self,
     }
-    send_mail("Password reset",
+    send_mail("%s%s Website Password Reset" % (self.department.shortname, self.theoffering.number),
               t.render(Context(c, current_app=current_app)),
               self.contactemail,
               [courseuser.user.email])

@@ -459,3 +459,13 @@ p.success {
 .errorlist {
   color: firebrick;
 }
+
+blockquote {
+  padding-top:0px;
+  padding-bottom:15px;
+  padding-left:10px;
+  padding-right:10px;
+  margin:0px;
+  border: 0px;
+  font-size: inherit;
+}

@@ -1,4 +1,16 @@
 {% extends "class/base.html" %}
 
 {% block content %}
+<div id="pitches">
+  <div class="container_16">
+    {% for pitch in pitches %}
+    <div class="pitch {{ pitch.style }} grid_16">
+      <div class="title"> <h1>{{ pitch.title }}</h1> </div>
+      <div class="owner"> <h2>{{ pitch.owner.user.first_name }} {{ pitch.owner.user.last_name }}</h2> </div>
+      <div class="description">{{ pitch.description|escape|linebreaks }} </div>
+    </div>
+    {% endfor %}
+    <div class="clear"></div>
+  </div>
+</div>
 {% endblock %}

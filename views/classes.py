@@ -30,8 +30,8 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        # 23 Sep 2011 : GWA : TODO : Gross. Need to make assignments more modular.
-                       #url(r'^/pitches/$', 'pitches'),
-                       #url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
+                       url(r'^/pitches/$', 'pitchesview'),
+                       url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
                        url(r'^/pitches/edit', 'pitchesedit', name='pitches-edit'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
@@ -279,18 +279,58 @@ class PitchForm(forms.Form):
 def pitchesview(request, theclass):
   theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Pitches'
-  if getclassuser(request, theclass):
-    theclass.submenulinks = loadPitchSubLinksLoggedIn()
-    theclass.selectedsubmenulink = 'Vote'
-    return render_to_response('class/pitches/vote.html',
-                              {'theclass': theclass,},
-                              context_instance=RequestContext(request, current_app=theclass.app_name))
-  else:
+  if not getclassuser(request, theclass):
     theclass.submenulinks = loadPitchSubLinksAnonymous()
     theclass.selectedsubmenulink = 'View'
-    return render_to_response('class/pitches/view.html',
-                              {'theclass': theclass,},
-                              context_instance=RequestContext(request, current_app=theclass.app_name))
+    voting = False
+
+    pitches = []
+    for u in theclass.users.filter():
+      pitches.extend(u.pitches.filter())
+    for i,p in enumerate(pitches):
+      if i % 2 == 0:
+        p.style = 'even'
+      else:
+        p.style = 'odd'
+  else:
+
+    if len(theclass.classuser.pitches.filter()) == 0:
+      messages.warning(request, "Please upload your pitch before viewing.")
+      return HttpResponseRedirect(reverse('course:pitch-edit'))
+
+    theclass.submenulinks = loadPitchSubLinksLoggedIn()
+
+    # 23 Sep 2011 : GWA : TODO : Fix this, change to Vote rather than View.
+    theclass.selectedsubmenulink = 'View'
+    voting = True
+    
+    pitches = []
+    for u in theclass.users.filter():
+      pitches.extend(u.pitches.filter())
+
+    for p in pitches:
+      if theclass.classuser == p.owner:
+        p.style = "owner"
+        p.sort = 0
+      elif theclass.classuser in p.votes.filter():
+        p.style = "voter"
+        p.sort = 1
+      else:
+        p.style = "other"
+        p.sort = 2
+    pitches.sort(key=lambda pitch: pitch.sort)
+
+    for i,p in enumerate([p for p in pitches if p.style == "other"]):
+      if i % 2 == 0:
+        p.style = 'even'
+      else:
+        p.style = 'odd'
+
+  return render_to_response('class/pitches/view.html',
+                            {'theclass': theclass,
+                             'voting': voting,
+                             'pitches': pitches},
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def pitchesedit(request, theclass):
   if not getclassuser(request, theclass):
@@ -343,6 +383,7 @@ def loadPitchSubLinksAnonymous(visible=None):
   return initLinks(menulinks, visible)
 
 def loadPitchSubLinksLoggedIn(visible=None):
-  menulinks = [#MenuLink('Vote', reverse('course:pitches-view')),
+  # 23 Sep 2011 : GWA : TODO : Fix this, change to Vote rather than View.
+  menulinks = [MenuLink('View', reverse('course:pitches-view')),
                MenuLink('Edit', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)

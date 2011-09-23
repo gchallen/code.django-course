@@ -469,3 +469,40 @@ blockquote {
   border: 0px;
   font-size: inherit;
 }
+
+.pitch .title h1 {
+  padding-top:10px;
+  padding-left:10px;
+  font-size:1.4em;
+  font-variant:small-caps;
+  font-weight:bold;
+  margin:0px;
+}
+
+.pitch .owner h2 {
+  font-size:1.2em;
+  padding-left:10px;
+  padding-bottom:10px;
+  font-weight:normal;
+  margin:0px;
+}
+
+.pitch .description {
+  padding-left:20px;
+  padding-top:0px;
+  padding-right:10px;
+  padding-bottom:0px;
+  margin-bottom:10px;
+}
+
+.pitch.owner {
+  background-color:#c0dfc8;
+}
+
+.pitch.odd {
+  background-color:#dfdfdf;
+}
+
+.pitch .description br {
+  margin-bottom:10px;
+}

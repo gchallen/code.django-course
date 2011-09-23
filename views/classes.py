@@ -302,6 +302,7 @@ def pitchesedit(request, theclass):
   theclass.selectedmenulink = 'Pitches'
   theclass.submenulinks = loadPitchSubLinksLoggedIn()
   theclass.selectedsubmenulink = 'Edit'
+  fillForm = True
 
   if request.method == 'POST':
     form = PitchForm(request.POST)
@@ -320,7 +321,9 @@ def pitchesedit(request, theclass):
         pitch = Pitch(title=title, description=description, youtubeID=youtubeID, owner=theclass.classuser)
         pitch.save()
         messages.success(request, "%s: Your pitch has been created." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
-  else:
+    else:
+      pitch = None
+  else: 
     try:
       pitch = Pitch.objects.get(owner=theclass.classuser)
       form = PitchForm({'title' : pitch.title, 'description' : pitch.description, 'youtubeID' : pitch.youtubeID })

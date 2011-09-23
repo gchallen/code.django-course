@@ -502,7 +502,3 @@ blockquote {
 .pitch.odd {
   background-color:#dfdfdf;
 }
-
-.pitch .description br {
-  margin-bottom:10px;
-}

@@ -30,8 +30,8 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        # 23 Sep 2011 : GWA : TODO : Gross. Need to make assignments more modular.
-                       url(r'^/pitches/$', 'pitchesview'),
-                       url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
+                       #url(r'^/pitches/$', 'pitches'),
+                       #url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
                        url(r'^/pitches/edit', 'pitchesedit', name='pitches-edit'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
@@ -116,7 +116,7 @@ class MenuLink:
 def loadLinks(theclass, visible=None):
   menulinks = [MenuLink('Summary', reverse('course:summary')),
                MenuLink('Schedule', reverse('course:schedule-default')),
-               MenuLink('Pitches', reverse('course:pitches-view'))]
+               MenuLink('Pitches', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)
 
 def initLinks(menulinks, visible=None):
@@ -340,6 +340,6 @@ def loadPitchSubLinksAnonymous(visible=None):
   return initLinks(menulinks, visible)
 
 def loadPitchSubLinksLoggedIn(visible=None):
-  menulinks = [MenuLink('Vote', reverse('course:pitches-view')),
+  menulinks = [#MenuLink('Vote', reverse('course:pitches-view')),
                MenuLink('Edit', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)

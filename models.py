@@ -432,6 +432,9 @@ class CourseUser(models.Model):
   )
   role = models.CharField(max_length=16, choices=ROLE_CHOICES)
 
+  def getname(self):
+    return "%s %s" % (self.user.first_name, self.user.last_name)
+
   @classmethod
   def create(cls, theclass, firstname, lastname, email, role, idnumber="", link=""):
     try:

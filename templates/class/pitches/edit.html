@@ -45,12 +45,12 @@
             </blockquote>
             then your YouTube Video ID is <strong>DZjJpBYenZ8</strong>, the
             <strong>v=&lt;something&gt;</strong> component of the URL.</p>
-          {% if form.youtubeID.value != "" %}
+          {% if form.youtubeID.value %}
           <p>If your Video ID is specified correctly, your video should appear and play correctly below.</p>
           {% endif %}
           </div>
           
-          {% if form.youtubeID.value != "" %}
+          {% if form.youtubeID.value %}
           <div class="grid_12 prefix_4">
             <iframe class="youtube-player"
                     type="text/html"

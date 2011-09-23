@@ -1,4 +1,4 @@
-import urlparse,logging
+import urlparse,logging,random
 
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
@@ -116,7 +116,7 @@ class MenuLink:
 def loadLinks(theclass, visible=None):
   menulinks = [MenuLink('Summary', reverse('course:summary')),
                MenuLink('Schedule', reverse('course:schedule-default')),
-               MenuLink('Pitches', reverse('course:pitches-edit'))]
+               MenuLink('Pitches', reverse('course:pitches-view'))]
   return initLinks(menulinks, visible)
 
 def initLinks(menulinks, visible=None):
@@ -287,16 +287,16 @@ def pitchesview(request, theclass):
     pitches = []
     for u in theclass.users.filter():
       pitches.extend(u.pitches.filter())
+    random.shuffle(pitches)
     for i,p in enumerate(pitches):
       if i % 2 == 0:
         p.style = 'even'
       else:
         p.style = 'odd'
   else:
-
     if len(theclass.classuser.pitches.filter()) == 0:
       messages.warning(request, "Please upload your pitch before viewing.")
-      return HttpResponseRedirect(reverse('course:pitch-edit'))
+      return HttpResponseRedirect(reverse('course:pitches-edit'))
 
     theclass.submenulinks = loadPitchSubLinksLoggedIn()
 
@@ -307,6 +307,8 @@ def pitchesview(request, theclass):
     pitches = []
     for u in theclass.users.filter():
       pitches.extend(u.pitches.filter())
+    
+    random.shuffle(pitches)
 
     for p in pitches:
       if theclass.classuser == p.owner:

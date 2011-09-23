@@ -1,0 +1,82 @@
+{% extends "class/base.html" %}
+
+{% block content %}
+  <div id="pitchedit">
+    <div class="container_16">
+      {% if form.errors %}
+      <div class="grid_12 prefix_4">
+        <p class="error">Please correct the errors below. Your pitch has not been saved.</p>
+        <p class="error"> {{ form.non_field_errors }} </p>
+      </div>
+      <div class="clear"></div>
+      {% endif %}
+      <div id="pitcheditform">
+        <form action="" method="post">{% csrf_token %}
+          {% if form.title.errors %}
+          <div class="grid_12 prefix_4">
+            <p class="error"> {{ form.title.errors }} </p>
+          </div>
+          <div class="clear"></div>
+          {% endif %}
+          <div class="grid_4 label">
+            <label for="title">Title:</label>
+          </div>
+          <div class="grid_4">
+            {{ form.title }}
+          </div>
+          <div class="clear"></div>
+          
+          {% if form.youtubeID.errors %}
+          <div class="grid_12 prefix_4">
+            <p class="error"> {{ form.youtubeID.errors }} </p>
+          </div>
+          <div class="clear"></div>
+          {% endif %}
+          <div class="grid_4 label">
+            <label for="youtubeID">YouTube Video ID:</label>
+          </div>
+          <div class="grid_4">
+            {{ form.youtubeID }}
+          </div>
+          <div class="clear"></div>
+          <div class="grid_12 prefix_4">
+          <p>Example: http://www.youtube.com/watch?v=<strong>DZjJpBYenZ8</strong></p>
+          {% if form.youtubeID.value != "" %}
+          <p>If your Video ID is specified correctly, your video should appear and play correctly below.</p>
+          {% endif %}
+          </div>
+          
+          {% if form.youtubeID.value != "" %}
+          <div class="grid_12 prefix_4">
+            <iframe class="youtube-player"
+                    type="text/html"
+                    width="640"
+                    height="385"
+                    src="http://www.youtube.com/embed/{{ form.youtubeID.value }}"
+                    frameborder="0"></iframe>
+          </div>
+          <div class="clear"></div>
+          {% endif %}
+          
+          {% if form.description.errors %}
+          <div class="grid_12 prefix_4">
+            <p class="error"> {{ form.description.errors }} </p>
+          </div>
+          <div class="clear"></div>
+          {% endif %}
+          <div class="grid_4 label">
+            <label for="description">Description:</label>
+          </div>
+          <div class="grid_4">
+            {{ form.description }}
+          </div>
+
+          <div class="clear"></div>
+          <div class="grid_8 prefix_4 loginbutton">
+            <input type="submit" value="SUBMIT" class="button" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

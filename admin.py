@@ -1,6 +1,6 @@
 from course.models import Course, Class, Offering, University, Department,\
     Semester, Holiday, Faculty, Supporter, Contribution, OfferingLink,\
-    Meeting, Paper, Slides, CourseUser
+    Meeting, Paper, Slides, CourseUser, Pitch
 from django.contrib.sites.models import Site
 from django.contrib import admin
 
@@ -19,3 +19,4 @@ admin.site.register(Meeting)
 admin.site.register(Paper)
 admin.site.register(Slides)
 admin.site.register(CourseUser)
+admin.site.register(Pitch)

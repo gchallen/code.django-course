@@ -431,3 +431,31 @@ p.success {
   padding: 5px;
   color: green;
 }
+
+#pitcheditform #id_title {
+  width: 480px;
+}
+
+#pitcheditform #id_youtubeID {
+  width: 60px;
+}
+
+#pitcheditform #id_description {
+  width: 700px;
+  max-width:700px;
+  min-width:700px;
+}
+
+#pitcheditform label {
+  padding-top:5px;
+  display:block;
+}
+
+#pitcheditform input {
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+.errorlist {
+  color: firebrick;
+}

@@ -451,3 +451,24 @@ class CourseUser(models.Model):
 
   def __unicode__(self):
     return "%s %s <%s> (%s)" % (self.user.first_name, self.user.last_name, self.user.email, self.role)
+
+# 23 Sep 2011 : GWA : Stuff specifically for CSE622. Should be moved into a special file eventually.
+
+class Pitch(models.Model):
+  title = models.CharField(max_length=1024)
+  description = models.TextField()
+  youtubeID = models.SlugField(max_length=32, blank=True, null=True)
+  added = models.DateTimeField(auto_now_add=True)
+  updated = models.DateTimeField(auto_now=True)
+  owner = models.ForeignKey('CourseUser', related_name='pitches')
+  votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', blank=True, null=True)
+
+  def getYouTubeLink(self):
+    return "http://www.youtube.com/embed/%s" % (self.youtubeID)
+
+  def __unicode__(self):
+    return "%s (%s %s)" % (self.title, self.owner.user.first_name, self.owner.user.last_name)
+  
+  class Meta:
+    verbose_name_plural = "pitches"
+

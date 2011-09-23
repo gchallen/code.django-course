@@ -3,7 +3,7 @@ import urlparse,logging
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from course.models import University, Department, Offering, Semester, CourseUser
+from course.models import University, Department, Offering, Semester, CourseUser, Pitch
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from datetime import datetime, time
@@ -29,7 +29,10 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/next/$', 'schedulenext', name='schedule-next'),
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
-                       url(r'^/assignments/((?P<assignment>\d+)/)?$', 'assignments', name='assignments'),
+                       # 23 Sep 2011 : GWA : TODO : Gross. Need to make assignments more modular.
+                       url(r'^/pitches/$', 'pitchesview'),
+                       url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
+                       url(r'^/pitches/edit', 'pitchesedit', name='pitches-edit'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
                        url(r'^/reset/complete/$', 'reset_complete', name='reset-complete'),
@@ -113,7 +116,7 @@ class MenuLink:
 def loadLinks(theclass, visible=None):
   menulinks = [MenuLink('Summary', reverse('course:summary')),
                MenuLink('Schedule', reverse('course:schedule-default')),
-               MenuLink('Assignments', reverse('course:assignments'))]
+               MenuLink('Pitches', reverse('course:pitches-view'))]
   return initLinks(menulinks, visible)
 
 def initLinks(menulinks, visible=None):
@@ -261,3 +264,82 @@ def reset_complete(request, theclass):
   theclass.resetlinks()
   return render_to_response('class/reset/complete.html',
                             context_instance=RequestContext(request, current_app=theclass.app_name))
+
+# 23 Sep 2011 : GWA : TODO : Pitch assignment-specific code. Needs to be modularized.
+
+# 23 Sep 2011 : GWA : TODO ; Form stuff should also go somewhere else.
+
+from django import forms
+
+class PitchForm(forms.Form):
+  title = forms.CharField(max_length=1024)
+  description = forms.CharField(widget=forms.Textarea)
+  youtubeID = forms.SlugField(max_length=32, required=False)
+
+def pitchesview(request, theclass):
+  theclass.menulinks = loadLinks(theclass)
+  theclass.selectedmenulink = 'Pitches'
+  if getclassuser(request, theclass):
+    theclass.submenulinks = loadPitchSubLinksLoggedIn()
+    theclass.selectedsubmenulink = 'Vote'
+    return render_to_response('class/pitches/vote.html',
+                              {'theclass': theclass,},
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
+  else:
+    theclass.submenulinks = loadPitchSubLinksAnonymous()
+    theclass.selectedsubmenulink = 'View'
+    return render_to_response('class/pitches/view.html',
+                              {'theclass': theclass,},
+                              context_instance=RequestContext(request, current_app=theclass.app_name))
+
+def pitchesedit(request, theclass):
+  if not getclassuser(request, theclass):
+    theclass.resetlinks()
+    messages.warning(request, "You must log in to view this page.")
+    return HttpResponseRedirect(reverse('course:login') + "?next=" + reverse('course:pitches-edit'))
+  
+  theclass.menulinks = loadLinks(theclass)
+  theclass.selectedmenulink = 'Pitches'
+  theclass.submenulinks = loadPitchSubLinksLoggedIn()
+  theclass.selectedsubmenulink = 'Edit'
+
+  if request.method == 'POST':
+    form = PitchForm(request.POST)
+    if form.is_valid():
+      title = form.cleaned_data['title']
+      description = form.cleaned_data['description']
+      youtubeID = form.cleaned_data['youtubeID']
+      try:
+        pitch = Pitch.objects.get(owner=theclass.classuser)
+        pitch.title = title
+        pitch.description = description
+        pitch.youtubeID = youtubeID
+        pitch.save()
+        messages.success(request, "%s: Your pitch has been updated." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
+      except:
+        pitch = Pitch(title=title, description=description, youtubeID=youtubeID, owner=theclass.classuser)
+        pitch.save()
+        messages.success(request, "%s: Your pitch has been created." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
+  else:
+    try:
+      pitch = Pitch.objects.get(owner=theclass.classuser)
+      form = PitchForm({'title' : pitch.title, 'description' : pitch.description, 'youtubeID' : pitch.youtubeID })
+      messages.success(request, "Loading pitch updated %s." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
+    except:
+      pitch = None
+      form = PitchForm()
+
+  return render_to_response('class/pitches/edit.html',
+                            {'theclass': theclass,
+                             'form': form,
+                             'pitch': pitch,},
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
+
+def loadPitchSubLinksAnonymous(visible=None):
+  menulinks = [MenuLink('View', reverse('course:pitches-view'))]
+  return initLinks(menulinks, visible)
+
+def loadPitchSubLinksLoggedIn(visible=None):
+  menulinks = [MenuLink('Vote', reverse('course:pitches-view')),
+               MenuLink('Edit', reverse('course:pitches-edit'))]
+  return initLinks(menulinks, visible)

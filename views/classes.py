@@ -294,7 +294,7 @@ def pitchesview(request, theclass):
       else:
         p.style = 'odd'
   else:
-    if len(theclass.classuser.pitches.filter()) == 0:
+    if theclass.classuser.role == 'Student' and len(theclass.classuser.pitches.filter()) == 0:
       messages.warning(request, "Please upload your pitch before viewing.")
       return HttpResponseRedirect(reverse('course:pitches-edit'))
 

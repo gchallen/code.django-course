@@ -470,6 +470,10 @@ blockquote {
   font-size: inherit;
 }
 
+.pitch .title a {
+  font-weight: bold;
+}
+
 .pitch .title h1 {
   padding-top:10px;
   padding-left:10px;

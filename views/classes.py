@@ -284,7 +284,7 @@ def pitchesview(request, theclass, pitchid=None):
     
   pitches = []
   for u in theclass.users.filter():
-    pitches.extend(u.pitches.filter())
+    pitches.extend(u.pitches.filter(visible=True))
   pitches.sort(key=lambda pitch: pitch.id)
 
   if pitchid != None:
@@ -319,8 +319,8 @@ def pitchesview(request, theclass, pitchid=None):
       else:
         p.style = 'odd'
   else:
-    if theclass.classuser.role == 'Student' and len(theclass.classuser.pitches.filter()) == 0:
-      messages.warning(request, "Please upload your pitch before viewing.")
+    if theclass.classuser.role == 'Student' and len(theclass.classuser.pitches.filter(visible=True)) == 0:
+      messages.warning(request, "Please complete your pitch before viewing.")
       return HttpResponseRedirect(reverse('course:pitches-edit'))
 
 
@@ -387,10 +387,11 @@ def pitchesedit(request, theclass):
         pitch.title = title
         pitch.description = description
         pitch.youtubeID = youtubeID
+        pitch.visible = True
         pitch.save()
         messages.success(request, "%s: Your pitch has been updated." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
       except:
-        pitch = Pitch(title=title, description=description, youtubeID=youtubeID, owner=theclass.classuser)
+        pitch = Pitch(title=title, description=description, youtubeID=youtubeID, owner=theclass.classuser, visible=True)
         pitch.save()
         messages.success(request, "%s: Your pitch has been created." % (pitch.updated.strftime("%a %b %d %H:%M:%S %Y")))
     else:

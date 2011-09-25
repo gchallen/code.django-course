@@ -177,7 +177,40 @@ class Class(models.Model):
                           email,
                           role,
                           idnumber=idnumber)
-
+  def loadPitchCSV(self, csvfilename):
+   
+    pitches = []
+    for u in self.users.filter():
+      pitches.extend(u.pitches.filter())
+    
+    csvreader = csv.DictReader(open(csvfilename, 'rb'))
+    youtubeIDPattern = re.compile(r'\?v=([\w\-_]+)')
+    for row in csvreader:
+      email = row['Email']
+      link = row['Pitch']
+      youtubeIDMatch = youtubeIDPattern.search(link)
+      assert youtubeIDMatch != None
+      youtubeID = youtubeIDMatch.group(1)
+      try:
+        courseuser = self.users.get(user__email__exact=email.strip())
+      except:
+        return False
+      userpitch = [p for p in pitches if p.owner == courseuser]
+      if len(userpitch) == 0:
+        print "Create pitch for %s" % (email,)
+        userpitch = Pitch(title="", description="", youtubeID=youtubeID, owner=courseuser, visible=False)
+        userpitch.save()
+      else:
+        userpitch = userpitch[0]
+        if userpitch.youtubeID == "":
+          print "Update pitch for %s" % (email,)
+          userpitch.youtubeID = youtubeID
+          userpitch.visible = True
+          userpitch.save()
+        else:
+          userpitch.visible = True
+          userpitch.save()
+          print "Skipping %s" % (email,)
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")
@@ -465,6 +498,7 @@ class Pitch(models.Model):
   updated = models.DateTimeField(auto_now=True)
   owner = models.ForeignKey('CourseUser', related_name='pitches')
   votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', blank=True, null=True)
+  visible = models.BooleanField(default=True)
 
   def getYouTubeLink(self):
     return "http://www.youtube.com/embed/%s" % (self.youtubeID)

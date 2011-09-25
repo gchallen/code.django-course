@@ -5,9 +5,9 @@
   <div class="container_16">
     {% for pitch in pitches %}
     <div class="pitch {{ pitch.style }} grid_16">
-      <div class="title"> <a href="{% url course:pitches-view pitchid=pitch.id %}">
-          <h1>{{ pitch.title }}</h1>
-        </a></div>
+      <div class="title"> 
+          <h1><a href="{% url course:pitches-view pitchid=pitch.id %}">{{ pitch.title }}</a></h1>
+        </div>
       <div class="owner"> <h2>{% if theclass.classuser %}
           <a href="mailto:{{ pitch.owner.user.email }}"
              title="Email {{ pitch.owner.getname }}">

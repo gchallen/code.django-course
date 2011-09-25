@@ -30,9 +30,10 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/schedule/all/$', 'scheduleall', name='schedule-all'),
                        url(r'^/staff/$', 'staff', name='staff'),
                        # 23 Sep 2011 : GWA : TODO : Gross. Need to make assignments more modular.
-                       url(r'^/pitches/$', 'pitchesview'),
-                       url(r'^/pitches/view', 'pitchesview', name='pitches-view'),
-                       url(r'^/pitches/edit', 'pitchesedit', name='pitches-edit'),
+                       url(r'^/pitches/$', 'pitchesview', kwargs={'pitchid': None}),
+                       url(r'^/pitches/view/$', 'pitchesview', name='pitches-view'),
+                       url(r'^/pitches/view/(?P<pitchid>\d+)?$', 'pitchesview', name='pitches-view'),
+                       url(r'^/pitches/edit/$', 'pitchesedit', name='pitches-edit'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
                        url(r'^/reset/complete/$', 'reset_complete', name='reset-complete'),
@@ -276,18 +277,42 @@ class PitchForm(forms.Form):
   description = forms.CharField(widget=forms.Textarea)
   youtubeID = forms.SlugField(max_length=32, required=False)
 
-def pitchesview(request, theclass):
+def pitchesview(request, theclass, pitchid=None):
   theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Pitches'
+  showVideo = False
+    
+  pitches = []
+  for u in theclass.users.filter():
+    pitches.extend(u.pitches.filter())
+  pitches.sort(key=lambda pitch: pitch.id)
+
+  if pitchid != None:
+    pitchid = int(pitchid)
+    if pitchid in [p.id for p in pitches]:
+      thepitch = [p for p in pitches if p.id == pitchid][0]
+      pitchindex = pitches.index(thepitch)
+      nextpitch = (pitchindex + 1) % len(pitches)
+      prevpitch = (pitchindex - 1) % len(pitches)
+      menulinks = [MenuLink('All', reverse('course:pitches-view')),
+                   MenuLink('Previous', reverse('course:pitches-view', kwargs={'pitchid' : pitches[prevpitch].id})),
+                   MenuLink('Next', reverse('course:pitches-view', kwargs={'pitchid' : pitches[nextpitch].id}))]
+      pitches = [thepitch]
+      showVideo = True
+    else:
+      pitchid = None
+
   if not getclassuser(request, theclass):
-    theclass.submenulinks = loadPitchSubLinksAnonymous()
-    theclass.selectedsubmenulink = 'View'
     voting = False
 
-    pitches = []
-    for u in theclass.users.filter():
-      pitches.extend(u.pitches.filter())
-    random.shuffle(pitches)
+    if pitchid != None:
+      theclass.submenulinks = initLinks(menulinks, None)
+      theclass.selectedsubmenulink = None
+    else:
+      random.shuffle(pitches)
+      theclass.submenulinks = loadPitchSubLinksAnonymous()
+      theclass.selectedsubmenulink = 'View'
+    
     for i,p in enumerate(pitches):
       if i % 2 == 0:
         p.style = 'even'
@@ -298,17 +323,21 @@ def pitchesview(request, theclass):
       messages.warning(request, "Please upload your pitch before viewing.")
       return HttpResponseRedirect(reverse('course:pitches-edit'))
 
-    theclass.submenulinks = loadPitchSubLinksLoggedIn()
 
     # 23 Sep 2011 : GWA : TODO : Fix this, change to Vote rather than View.
     theclass.selectedsubmenulink = 'View'
     voting = True
     
-    pitches = []
-    for u in theclass.users.filter():
-      pitches.extend(u.pitches.filter())
+    if pitchid != None:
+      theclass.submenulinks = initLinks(menulinks, None)
+      theclass.selectedsubmenulink = None
+    else:
+      random.shuffle(pitches)
+      theclass.submenulinks = loadPitchSubLinksLoggedIn()
+      theclass.selectedsubmenulink = 'View'
     
-    random.shuffle(pitches)
+    if pitchid != None and pitchid in [p.id for p in pitches]:
+      pitches = [p for p in pitches if p.id == pitchid]
 
     for p in pitches:
       if theclass.classuser == p.owner:
@@ -331,7 +360,8 @@ def pitchesview(request, theclass):
   return render_to_response('class/pitches/view.html',
                             {'theclass': theclass,
                              'voting': voting,
-                             'pitches': pitches},
+                             'pitches': pitches,
+                             'showVideo': showVideo},
                             context_instance=RequestContext(request, current_app=theclass.app_name))
 
 def pitchesedit(request, theclass):

@@ -5,13 +5,28 @@
   <div class="container_16">
     {% for pitch in pitches %}
     <div class="pitch {{ pitch.style }} grid_16">
-      <div class="title"> <h1>{{ pitch.title }}</h1> </div>
+      <div class="title"> <a href="{% url course:pitches-view pitchid=pitch.id %}">
+          <h1>{{ pitch.title }}</h1>
+        </a></div>
       <div class="owner"> <h2>{% if theclass.classuser %}
           <a href="mailto:{{ pitch.owner.user.email }}"
              title="Email {{ pitch.owner.getname }}">
              {% endif %}{{ pitch.owner.getname }}
             {% if theclass.classuser %}</a>{% endif %}</h2> </div>
       <div class="description">{{ pitch.description|escape|linebreaks }} </div>
+      {% if showVideo and pitch.youtubeID %}
+        <div class="grid_16">
+          <center>
+          <iframe class="youtube-player"
+                  type="text/html"
+                  width="640"
+                  height="385"
+                  src="http://www.youtube.com/embed/{{ pitch.youtubeID }}"
+                  frameborder="0"></iframe>
+          </center>
+        </div>
+        <div class="clear"></div>
+      {% endif %}
     </div>
     {% endfor %}
     <div class="clear"></div>

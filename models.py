@@ -497,7 +497,8 @@ class Pitch(models.Model):
   added = models.DateTimeField(auto_now_add=True)
   updated = models.DateTimeField(auto_now=True)
   owner = models.ForeignKey('CourseUser', related_name='pitches')
-  votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', blank=True, null=True)
+  votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', through='PitchVote', blank=True, null=True)
+  #votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', blank=True, null=True)
   visible = models.BooleanField(default=True)
 
   def getYouTubeLink(self):
@@ -509,3 +510,18 @@ class Pitch(models.Model):
   class Meta:
     verbose_name_plural = "pitches"
 
+class PitchVote(models.Model):
+  VOTE_CHOICES = (
+    (0, ""),
+    (1, '1st'),
+    (2, '2nd'),
+    (3, '3rd'),
+    (4, '4th'),
+    (5, '5th'),
+  )
+  courseuser = models.ForeignKey('CourseUser')
+  pitch = models.ForeignKey('Pitch')
+  vote = models.IntegerField(choices=VOTE_CHOICES)
+  
+  def __unicode__(self):
+    return "%s for %s (%s)" % (self.courseuser.getname(), self.pitch.title, self.VOTE_CHOICES[self.vote][1])

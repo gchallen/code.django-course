@@ -3,8 +3,34 @@
 {% block content %}
 <div id="pitches">
   <div class="container_16">
+    {% if form %}
+    <form action="" method="post">{% csrf_token %}
+    <div class="grid_2 submit">
+      <input type="submit" value="SUBMIT" class="button" />
+      <hr>
+    </div>
+    {% if form.errors %}
+    <div class="grid_14">
+      <p class="error">Please correct the errors below. Your votes have not
+      been recorded.</p>
+      <p class="error"> {{ form.non_field_errors }} </p>
+    </div>
+    {% endif %}
+    <div class="clear"></div>
+    {% endif %}
     {% for pitch in pitches %}
+    {% if form %}
+    <div class="vote {{ pitch.style }} grid_2">
+      {% if pitch.votingform %}
+        {{ pitch.votingform }}
+      {% else %}
+        &nbsp;
+      {% endif %}
+    </div>
+    <div class="pitch {{ pitch.style }} grid_14">
+    {% else %}
     <div class="pitch {{ pitch.style }} grid_16">
+    {% endif %}
       <div class="title"> 
           <h1><a href="{% url course:pitches-view pitchid=pitch.id %}">{{ pitch.title }}</a></h1>
         </div>
@@ -29,6 +55,9 @@
       {% endif %}
     </div>
     {% endfor %}
+    {% if form %}
+    </form>
+    {% endif %}
     <div class="clear"></div>
   </div>
 </div>

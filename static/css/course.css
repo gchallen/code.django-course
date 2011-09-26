@@ -500,9 +500,24 @@ blockquote {
 }
 
 .pitch.owner {
-  background-color:#c0dfc8;
+  background-color:LightGreen;
+}
+
+.pitch.voter {
+  background-color:#bfdccd;
 }
 
 .pitch.odd {
   background-color:#dfdfdf;
 }
+
+#pitches .vote {
+  text-align:center;
+  margin-top:25px;
+}
+
+#pitches .submit {
+  text-align:center;
+}
+
+

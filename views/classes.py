@@ -1,9 +1,9 @@
-import urlparse,logging,random
+import urlparse,logging,random,re
 
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from course.models import University, Department, Offering, Semester, CourseUser, Pitch
+from course.models import University, Department, Offering, Semester, CourseUser, Pitch, PitchVote
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from datetime import datetime, time
@@ -277,10 +277,36 @@ class PitchForm(forms.Form):
   description = forms.CharField(widget=forms.Textarea)
   youtubeID = forms.SlugField(max_length=32, required=False)
 
+class PitchVoteForm(forms.Form):
+  
+  def __init__(self, *args, **kwargs):
+    pitchids = kwargs.pop('pitchids')
+    try:
+      votes = kwargs.pop('votes')
+    except:
+      votes = {}
+    super(PitchVoteForm, self).__init__(*args, **kwargs)
+    for pitchid in pitchids:
+      initial = ""
+      if pitchid in votes.keys():
+        initial = votes[pitchid]
+      logging.critical("%s %s" % (pitchid, initial,))
+      self.fields[pitchid] = forms.ChoiceField(choices=PitchVote.VOTE_CHOICES, initial=initial)
+
+  def clean(self):
+    cleaned_data = self.cleaned_data
+    votes = [int(v) for v in cleaned_data.values() if int(v) != 0]
+    votes.sort()
+    logging.critical(votes)
+    if votes != [1, 2, 3, 4, 5]:
+      raise forms.ValidationError("Please vote for one 1st, 2nd, 3rd, 4th and 5th choice.")
+    return cleaned_data
+
 def pitchesview(request, theclass, pitchid=None):
   theclass.menulinks = loadLinks(theclass)
   theclass.selectedmenulink = 'Pitches'
   showVideo = False
+  form = None
     
   pitches = []
   for u in theclass.users.filter():
@@ -303,7 +329,7 @@ def pitchesview(request, theclass, pitchid=None):
       pitchid = None
 
   if not getclassuser(request, theclass):
-    voting = False
+    form = None
 
     if pitchid != None:
       theclass.submenulinks = initLinks(menulinks, None)
@@ -323,21 +349,48 @@ def pitchesview(request, theclass, pitchid=None):
       messages.warning(request, "Please complete your pitch before viewing.")
       return HttpResponseRedirect(reverse('course:pitches-edit'))
 
+    if request.method == 'POST':
+      logging.critical(request.POST)
+      form = PitchVoteForm(request.POST, pitchids=[key for key in request.POST.keys() if key.startswith('pitch_')])
+      pitchidPattern = re.compile(r'pitch_(\d+)')
+      if form.is_valid():
+        theclass.classuser.pitch_votes.clear()
+        formdata = form.cleaned_data
+        logging.critical(formdata)
 
-    # 23 Sep 2011 : GWA : TODO : Fix this, change to Vote rather than View.
-    theclass.selectedsubmenulink = 'View'
-    voting = True
-    
-    if pitchid != None:
+        for field in formdata.keys():
+          if formdata[field] == '0':
+            continue
+          else:
+            pitchvote = int(formdata[field])
+            pitchvoteid = int(pitchidPattern.match(field).group(1))
+            logging.critical(pitchvoteid)
+            newvote = PitchVote(courseuser=theclass.classuser, pitch=Pitch.objects.get(id=pitchvoteid),vote=pitchvote)
+            newvote.save()
+        messages.success(request, "Your votes have been saved.")
+      else:
+        logging.critical('Form errors.')
+        logging.critical(form.errors)
+
+    if pitchid != None and pitchid in [p.id for p in pitches]:
+      pitches = [p for p in pitches if p.id == pitchid]
       theclass.submenulinks = initLinks(menulinks, None)
       theclass.selectedsubmenulink = None
+      form = None
     else:
       random.shuffle(pitches)
       theclass.submenulinks = loadPitchSubLinksLoggedIn()
-      theclass.selectedsubmenulink = 'View'
-    
-    if pitchid != None and pitchid in [p.id for p in pitches]:
-      pitches = [p for p in pitches if p.id == pitchid]
+      theclass.selectedsubmenulink = 'Vote'
+     
+      otherpitches = [p for p in pitches if p.owner != theclass.classuser]
+      if form == None:
+        uservotes = {}
+        for pitch in theclass.classuser.pitch_votes.filter():
+          uservotes["pitch_%s" % (pitch.id,)] = pitch.pitchvote_set.get().vote
+          logging.critical(uservotes)
+        form = PitchVoteForm(initial=uservotes, pitchids=["pitch_%s" % (str(p.id),) for p in otherpitches])
+      for p in otherpitches:
+        p.votingform = form['pitch_%s' % str(p.id)]
 
     for p in pitches:
       if theclass.classuser == p.owner:
@@ -345,10 +398,10 @@ def pitchesview(request, theclass, pitchid=None):
         p.sort = 0
       elif theclass.classuser in p.votes.filter():
         p.style = "voter"
-        p.sort = 1
+        p.sort = PitchVote.objects.get(courseuser=theclass.classuser, pitch=p).vote
       else:
         p.style = "other"
-        p.sort = 2
+        p.sort = 10
     pitches.sort(key=lambda pitch: pitch.sort)
 
     for i,p in enumerate([p for p in pitches if p.style == "other"]):
@@ -359,7 +412,7 @@ def pitchesview(request, theclass, pitchid=None):
 
   return render_to_response('class/pitches/view.html',
                             {'theclass': theclass,
-                             'voting': voting,
+                             'form': form,
                              'pitches': pitches,
                              'showVideo': showVideo},
                             context_instance=RequestContext(request, current_app=theclass.app_name))
@@ -416,7 +469,6 @@ def loadPitchSubLinksAnonymous(visible=None):
   return initLinks(menulinks, visible)
 
 def loadPitchSubLinksLoggedIn(visible=None):
-  # 23 Sep 2011 : GWA : TODO : Fix this, change to Vote rather than View.
-  menulinks = [MenuLink('View', reverse('course:pitches-view')),
+  menulinks = [MenuLink('Vote', reverse('course:pitches-view')),
                MenuLink('Edit', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)

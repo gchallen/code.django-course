@@ -1,22 +1,19 @@
-{% extends "base.html" %}
+{% extends "class/base.html" %}
 
 {% block content %}
 <div id="summary">
   <div class="box_14">
-    <div class="label grid_2">
-      Summary:
-    </div>
-    <div id="summarytext" class="grid_12">
-      {{ summary|safe|linebreaks }}
+    <div id="summarytext" class="grid_12 prefix_2">
+      {{ theclass.summary|safe|linebreaks }}
     </div>
     <div class="label grid_2">
       Keywords:
     </div>
     <div id="keywords" class="grid_12">
-      <p>{{keywords}}</p>
+      <p>{{theclass.keywords}}</p>
     </div>
     <div class="label grid_2">
-      {{ semester.name }}:
+      {{ theclass.semester.name }}:
     </div>
     <div id="classsummarytext" class="grid_12">
       {{ theclass.classsummary|safe|linebreaks }}
@@ -24,7 +21,7 @@
   </div>
   <div class="grid_2">
     <div id="faculty">
-    <h4>Staff</h4>
+      <h4>Staff</h4>
     {% for faculty in theclass.faculty.filter %}
       <div class="onefaculty">
         {% if faculty.photo %}
@@ -38,6 +35,9 @@
         </a>
         {% endif %}
       </div>
+      {% if not forloop.last %}
+        <hr />
+      {% endif %}
     {% endfor %} 
     </div>
   </div>

@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang=en>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/reset.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/text.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/960.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/layout.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/nav.css" media="screen" />
+  <!--[if IE 6]><link rel="stylesheet" type="text/css" href="../../css/ie6.css" media="screen" /><![endif]-->
+  <!--[if IE 7]><link rel="stylesheet" type="text/css" href="../../css/ie.css" media="screen" /><![endif]-->
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/course.css" media="screen" />
+  <title>{% block title %}{{theclass.university.shortname}} {{ theclass.department.shortname }}{{ theclass.theoffering.number }}: {{ theclass.title }} ({{ theclass.semester.name }}) {% endblock %}</title>
+</head>
+<body>
+<div class="container_16">
+  <div id="header" class="grid_16">
+    <a href="{{ theclass.department.link }}">
+      <img src="{{ theclass.department.logo.url }}" width="{{ theclass.department.logo.width }}px" height="{{ theclass.department.logo.height}}px" alt="{{ theclass.department.name }}">
+    </a>
+    <h1><a href="{% url course:summary %}">{{ theclass.department.shortname}}{{ theclass.theoffering.number }}: {{ theclass.title }}</a> </h1>
+    <h2> {{ theclass.semester.name }}&mdash;{{ theclass.classtitle }} </h2>
+  </div>
+  <div class="clear"></div>
+  {% block menu %}
+<div id="menu">
+  <div class="container_16">
+    <div class="box_14">
+    {% for link in theclass.menulinks %}
+      {% if link.visible %}
+        {% if link.name == theclass.selectedmenulink %}
+        <div class="currentlabel grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% else %}
+        <div class="label grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% endif %}
+      {% endif %}
+    {% empty %}
+      <div class="currentlabel grid_2">&nbsp;</div>
+    {% endfor %}
+    </div>
+      {% if user.is_authenticated %}
+        {% if theclass.selectedmenulink == 'Logout' %}
+          <div class="currentlabel grid_2">
+        {% else %}
+          <div class="label grid_2">
+        {% endif %}
+            <a href="{% url course:logout %}?next={{ request.path }}">Logout</a>
+          </div>
+      {% else %}
+        {% if theclass.selectedmenulink == 'Login' %}
+          <div class="currentlabel grid_2">
+        {% else %}
+          <div class="label grid_2">
+        {% endif %}
+            <a href="{% url course:login %}?next={{ request.path }}">Login</a>
+          </div>
+      {% endif %}
+  </div>
+  <div class="clear"></div>
+</div>
+  {% endblock %}
+  {% block submenu %}
+{% if theclass.submenulinks %}
+<div id="menu" class="submenu">
+  <div class="container_16">
+    {% for link in theclass.submenulinks %}
+      {% if link.visible %}
+        {% if link.name == theclass.selectedsubmenulink %}
+        <div class="currentlabel grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% else %}
+        <div class="label grid_2">
+          <a href="{{ link.url }}">{{ link.name }}</a>
+        </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div class="clear"></div>
+</div>
+{% endif %}
+{% endblock %}
+{% block messages %}
+<div class="clear"></div>
+{% if messages %}
+<div id="messages">
+  <div class="container_16">
+    <div class="grid_12 prefix_2">
+    {% for message in messages %}
+    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}><strong><span style="text-transform:uppercase">{{ message.tags }}:</span></strong> {{ message|safe }}
+    {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+  <div class="clear"></div>
+  <div id=content>
+    {% block content %}{% endblock %}
+  </div>
+  <div class="clear"></div>
+  <div id=supporters>
+    {% block supporters %}{% endblock %}
+  </div>
+  <div class="clear"></div>
+  <hr />
+  <div id="footer" class="grid_16">
+    <div class="grid_4 prefix_6 suffix_11">
+    <a href="{{ theclass.university.link }}"><img src="{{ theclass.university.logo.url }}" width="{{ theclass.university.logo.width }}px" height="{{ theclass.university.logo.height }}px" alt="{{ theclass.university.name }}"></a>
+  </div>
+  </div>
+</div>
+<script type="text/javascript" src="{{ STATIC_URL }}js/mootools-1.2.1-core.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/mootools-1.2-more.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/mootools-fluid16-autoselect.js"></script>
+</body>
+</html>

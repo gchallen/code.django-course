@@ -3,7 +3,7 @@ body {
   width:960px;
   margin-left: auto;
   margin-right: auto;
-  font-family: 'Palatino Linotype', 'Palatino', Georgia, 'Times New Roman', serif
+  font-family: 'Palatino', 'Times New Roman', serif
 }
 
 hr {
@@ -12,6 +12,48 @@ hr {
 	border-width: 1px 0 0;
 	clear: both;
 	height: 0;
+}
+
+#menu {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+#menu.submenu {
+  border-top: 0px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+  margin-top:-10px;
+}
+
+#menu .label, .currentlabel {
+  line-height:1.6em;
+  text-align:center;
+  font-variant:small-caps;
+  font-size:0.9em;
+  font-weight:bold;
+}
+
+#menu .label a {
+  text-decoration:none;
+  color:inherit;
+  height:inherit;
+  width:inherit;
+  display:block;
+}
+
+#menu .currentlabel a {
+  text-decoration:none;
+  color:inherit;
+  height:inherit;
+  width:inherit;
+  display:block;
+  background-color:#e6e6fa;
+}
+
+#menu .label a:hover {
+  background:#dfdfdf;
 }
 
 #header {
@@ -37,6 +79,9 @@ hr {
   float: right;
 }
 
+a {
+  color: inherit;
+}
 a:visited {
   color: inherit;
 }
@@ -59,26 +104,33 @@ a:hover {
   margin-bottom: 0.5em;
 }
 
-#content #faculty h4 {
+#faculty h4 {
+  font-variant:small-caps;
   text-align: center;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
-#content #faculty .onefaculty {
+#faculty .onefaculty {
   padding-top: 10px;
   padding-bottom: 10px;
-  border-top: 1px solid black;
   text-align: center;
   font-weight: bold;
   color: #191995;
 }
 
-#content #faculty .onefaculty img {
+#faculty .onefaculty img {
   display: block;
   width: 100px;
   margin-left: auto;
   margin-right: auto;
   padding-bottom: 10px;
+}
+
+#faculty hr {  
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0 0;
+  margin: 0px;
 }
 
 #content #keywords p {
@@ -91,6 +143,7 @@ a:hover {
 #content .label {
   font-weight:bold;
   text-align: right;
+  font-variant:small-caps;
 }
 
 
@@ -245,3 +298,226 @@ fieldset
 #kwick a:hover {
   text-decoration: none;
 }
+
+#schedule {
+  margin-top:15px;
+  margin-bottom:15px;
+}
+
+#schedule .heading {
+  font-size:1.1em;
+  font-weight:bold;
+  text-align:center;
+  font-variant:small-caps;
+}
+
+#schedule .heading hr {
+	border-color: black;
+	border-style: solid;
+	border-width: 1px 0 0;
+	height: 0px;
+  margin-bottom:15px;
+}
+
+#schedule .entries {
+  font-variant:small-caps;
+  font-size:0.9em;
+  text-align:center;
+  font-weight:bold;
+}
+
+#schedule .description {
+  font-variant:normal;
+  font-size:1.0em;
+  text-align:left;
+  font-weight:normal;
+}
+
+#schedule .entry {
+  margin-top:10px;
+  margin-bottom:10px;
+  padding-top:10px;
+  padding-bottom:10px;
+  margin-left:-5px;
+  border-left:5px solid black;
+}
+
+#schedule .entry.optional {
+  font-weight:normal;
+  border-left:0px;
+  margin-left:0px;
+}
+
+#schedule .entry .description .summary {
+  font-weight:bold;
+  text-decoration:underline;
+}
+
+#schedule .entry.optional .description .summary {
+  font-weight:normal;
+  font-style:italic;
+}
+
+#schedule .entry.odd {
+  background-color:#dfdfdf;
+}
+
+#schedule .entry.odd.next {
+  background-color:#c0dfc8;
+}
+#schedule .entry.even.next {
+  background-color:#c0dfc8;
+}
+
+#schedule .entry .description p {
+  margin-top:5px;
+  margin-bottom:0px;
+  line-height:110%;
+}
+
+#schedule .entry .papers a {
+  font-weight:normal;
+  color:#191995;
+}
+
+#loginform .loginlabel {
+  font-variant:small-caps;
+  font-size:0.9em;
+  font-weight:bold;
+  text-align:right;
+}
+
+#loginform label {
+  padding-top:5px;
+  display:block;
+}
+
+#loginform input {
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+#loginform .loginbutton {
+  margin-top:10px;
+  text-align:center;
+}
+
+#loginform .button {
+  font-family:inherit;
+  font-variant:small-caps;
+  font-weight: bold;
+}
+
+.error {
+  font-weight:bold;
+  color:firebrick;
+  font-variant:small-caps;
+}
+
+#login .error {
+  text-align: center;
+}
+
+p.warning {
+  width:inherit;
+  border: 2px solid red;
+  padding: 5px;
+  color: firebrick;
+}
+
+p.success {
+  width:inherit;
+  border: 2px solid DarkGreen;
+  padding: 5px;
+  color: green;
+}
+
+#pitcheditform #id_title {
+  width: 480px;
+}
+
+#pitcheditform #id_youtubeID {
+  width: 60px;
+}
+
+#pitcheditform #id_description {
+  width: 700px;
+  max-width:700px;
+  min-width:700px;
+}
+
+#pitcheditform label {
+  padding-top:5px;
+  display:block;
+}
+
+#pitcheditform input {
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+.errorlist {
+  color: firebrick;
+}
+
+blockquote {
+  padding-top:0px;
+  padding-bottom:15px;
+  padding-left:10px;
+  padding-right:10px;
+  margin:0px;
+  border: 0px;
+  font-size: inherit;
+}
+
+.pitch .title a {
+  font-weight: bold;
+}
+
+.pitch .title h1 {
+  padding-top:10px;
+  padding-left:10px;
+  font-size:1.4em;
+  font-variant:small-caps;
+  font-weight:bold;
+  margin:0px;
+}
+
+.pitch .owner h2 {
+  font-size:1.2em;
+  padding-left:10px;
+  padding-bottom:10px;
+  font-weight:normal;
+  margin:0px;
+}
+
+.pitch .description {
+  padding-left:20px;
+  padding-top:0px;
+  padding-right:10px;
+  padding-bottom:0px;
+  margin-bottom:10px;
+}
+
+.pitch.owner {
+  background-color:LightGreen;
+}
+
+.pitch.voter {
+  background-color:#bfdccd;
+}
+
+.pitch.odd {
+  background-color:#dfdfdf;
+}
+
+#pitches .vote {
+  text-align:center;
+  margin-top:25px;
+}
+
+#pitches .submit {
+  text-align:center;
+}
+
+

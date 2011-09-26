@@ -1,0 +1,4 @@
+{% load url from future %}Welcome to the {{ theclass.department.shortname }}{{ theclass.theoffering.number }} website!
+
+Follow the link below to create a password for your account:
+{{ protocol }}://{{ site_name }}{% url 'course:reset' uidb36=uid token=token %}

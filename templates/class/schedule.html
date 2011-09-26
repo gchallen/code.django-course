@@ -1,0 +1,56 @@
+{% extends "class/base.html" %}
+
+{% block content %}
+<div id="schedule">
+  <div class="container_16">
+    <div class="heading">
+      <div class="grid_2">
+        Date/Time
+      </div>
+      <div class="grid_2">
+        Location
+      </div>
+      <div class="grid_12">
+        Description
+      </div>
+      <hr />
+    </div>
+    <div class="clear"></div>
+    <div class="entries">
+    {% for meeting in meetings %}
+    <div class="entry {% cycle 'odd' 'even' %} {% if meeting.optional %}optional{% endif %} {% if meeting.nextmeeting %}next{% endif %}">
+      <div class="grid_2">
+        {{ meeting.start|date:"l" }}<br>
+        {{ meeting.start|date:"m.d.Y" }}<br>
+        {{ meeting.start|date:"H:i"}}&ndash;{{ meeting.end|date:"H:i"}}<br>
+      </div>
+      <div class="grid_2">
+        {{ meeting.location }}
+      </div>
+      <div class="grid_12 description">
+        <span class="summary">{% if meeting.optional %}(Optional) {% endif %}{{ meeting.summary }}:</span>
+        <p>{{ meeting.description|safe }}
+        {% if meeting.slides_set.filter %}
+        <div class="slides">
+          <p><strong><u>Slides</u>:</strong>
+          {% for slides in meeting.slides_set.filter %}
+            {% if meeting.slides_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ slides.render|safe }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </div>
+        {% endif %}
+        {% if meeting.paper_set.filter %}
+        <div class="papers">
+          <p><strong><u>Papers</u>:</strong>
+          {% for paper in meeting.paper_set.filter %}
+            {% if meeting.paper_set.filter|length > 1 %}({{ forloop.counter }}){% endif %}&nbsp;{{ paper.render|safe }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </div>
+        {% endif %}
+      </div>
+      <div class="clear"></div>
+  </div>
+    {% endfor %}
+  </div>
+  </div>
+</div>
+{% endblock %}

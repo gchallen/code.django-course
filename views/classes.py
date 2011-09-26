@@ -414,7 +414,7 @@ def pitchesview(request, theclass, pitchid=None):
       if form == None:
         uservotes = {}
         for pitch in theclass.classuser.pitch_votes.filter():
-          uservotes["pitch_%s" % (pitch.id,)] = pitch.pitchvote_set.get().vote
+          uservotes["pitch_%s" % (pitch.id,)] = pitch.pitchvote_set.get(courseuser=theclass.classuser).vote
           logging.critical(uservotes)
         form = PitchVoteForm(initial=uservotes, pitchids=["pitch_%s" % (str(p.id),) for p in otherpitches])
       for p in otherpitches:

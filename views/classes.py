@@ -237,34 +237,6 @@ def reset(request, theclass, uidb36=None, token=None):
               user = authenticate(username=user.username, password=form.cleaned_data['new_password1'])
               auth_login(request, user)
 
-<<<<<<< HEAD
-  if theclass.title == "":
-    theclass.title = theclass.course.title
-
-  if theclass.keywords == "":
-    theclass.keywords = theclass.course.keywords
-
-  if theclass.summary == "":
-    theclass.summary = theclass.course.summary
-
-  theclass.university = offering.department.university
-  theclass.department = offering.department
-  theclass.offering = offering
-  
-  return renderClassSummary(request, theclass)
-
-def renderClassSummary(request, theclass):
-  return render_to_response('class/summary.html', 
-                           {'title': theclass.title,
-                            'keywords': theclass.keywords,
-                            'summary': theclass.summary,
-                            'university': theclass.university,
-                            'department': theclass.department,
-                            'offering': theclass.offering,
-                            'semester': theclass.semester,
-                            'theclass': theclass},
-                            context_instance=RequestContext(request))
-=======
               if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
               
@@ -500,4 +472,3 @@ def loadPitchSubLinksLoggedIn(visible=None):
   menulinks = [MenuLink('Vote', reverse('course:pitches-view')),
                MenuLink('Edit', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)
->>>>>>> e22423df1d351e88e3de3903c0cd6ab9cc0c7278

@@ -211,6 +211,12 @@ class Class(models.Model):
           userpitch.visible = True
           userpitch.save()
           print "Skipping %s" % (email,)
+  
+  def choosePitches(self, groupsize):
+    pitches = []
+    for u in self.users.filter():
+      pitches.extend(u.pitches.filter(visible=True))
+    pitches.sort(key=lambda pitch: pitch.id)
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")

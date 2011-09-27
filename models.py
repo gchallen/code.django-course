@@ -1,4 +1,4 @@
-import os, random, string, csv, re
+import os, random, string, csv, re, random
 
 from django.db import models
 from django.contrib.sites.models import Site
@@ -212,11 +212,139 @@ class Class(models.Model):
           userpitch.save()
           print "Skipping %s" % (email,)
   
-  def choosePitches(self, groupsize):
-    pitches = []
-    for u in self.users.filter():
-      pitches.extend(u.pitches.filter(visible=True))
-    pitches.sort(key=lambda pitch: pitch.id)
+  def choosePitchesSTF(self, number):
+
+    ''' 27 Sep 2011 : GWA : Algorithm.
+                         initialize:
+                           assign all users to their first-choice project
+                         sort all projects by votes
+                         first, select top
+                         for each project with more than groupsize - 1 users:
+                           select this project
+                           assign owner to this project
+                           assign random groupsize - 1 size subset of first-choice voters to this project
+                           assign any first-choice voters that did not receive this project to their second-choice project
+
+                           resort'''
+                         
+    class userVote:
+      def __init__(self, courseuser):
+        self.courseuser = courseuser
+        self.currentVoteIndex = 1
+        self.currentPitch = None
+        self.leader = False
+        self.assignedPitch = None
+
+      def vote(self, pitches):
+        while True:
+          if self.currentVoteIndex > 5:
+            return None
+          pitch = self.courseuser.pitch_votes.get(pitchvote__vote=self.currentVoteIndex)
+          if pitch in pitches:
+            self.currentPitch = pitches[pitches.index(pitch)]
+            return self.currentPitch
+          else:
+            self.currentVoteIndex += 1
+
+      def current(self):
+        return self.currentPitch
+
+      def printCurrent(self):
+        if self.leader:
+          print "%s leading %s" % (str(self.courseuser), str(self.assignedPitch))
+        else:
+          print "%s joining %s" % (str(self.courseuser), str(self.assignedPitch))
+
+
+    voters = [userVote(courseuser) for courseuser in self.users.filter(role="Student")]
+
+    pitches = Pitch.objects.filter(owner__in=self.users.filter())
+    
+    def clearVotes(pitches):
+      for p in pitches:
+        p.votecount = 0
+      return pitches
+    
+    rejectedpitches = []
+    
+    for index in range(len(pitches)):
+      activepitches = [p for p in pitches if p not in rejectedpitches]
+      
+      activepitches = clearVotes(activepitches)
+      for voter in voters:
+        votingpitch = voter.vote(activepitches)
+        if votingpitch != None:
+          votingpitch.votecount += 1
+      
+      if len(activepitches) == number:
+        activepitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
+        return activepitches
+      else:
+        rejectedpitches.append(min(activepitches, key=lambda pitch: pitch.votecount))
+
+    return activepitches
+
+  @classmethod
+  def printPitches(cls, pitches):
+    string = ""
+    for p in pitches:
+      string += "%s: %s (%s)\n" % (str(p.votecount), p.title, p.owner.getname())
+    return string
+
+  def choosePitchesFirst(self):
+    pitches = [p for p in Pitch.objects.filter(owner__in=self.users.filter())]
+    for p in pitches:
+      p.votecount = 0
+    for u in self.users.filter(role='Student'):
+      pitch = PitchVote.objects.get(courseuser=u, vote=1).pitch
+      pitch = pitches[pitches.index(pitch)]
+      pitch.votecount += 1
+    pitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
+    return pitches
+  
+  def choosePitchesWeighted(self):
+    pitches = [p for p in Pitch.objects.filter(owner__in=self.users.filter())]
+    for p in pitches:
+      p.votecount = 0
+    for u in self.users.filter(role='Student'):
+      for index, score in [(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]:
+        pitch = PitchVote.objects.get(courseuser=u, vote=index).pitch
+        pitch = pitches[pitches.index(pitch)]
+        pitch.votecount += score
+    pitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
+    return pitches
+
+  def choosePitchesVoters(self):
+    pitches = [p for p in Pitch.objects.filter(owner__in=self.users.filter())]
+    for p in pitches:
+      p.votecount = 0
+    for u in self.users.filter(role='Student'):
+      for index in [1, 2, 3, 4, 5]:
+        pitch = PitchVote.objects.get(courseuser=u, vote=index).pitch
+        pitch = pitches[pitches.index(pitch)]
+        pitch.votecount += 1
+    pitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
+    return pitches
+
+  def choosePitchesAverage(self):
+    pitches = [p for p in Pitch.objects.filter(owner__in=self.users.filter())]
+    for p in pitches:
+      p.votecount = 0
+      p.votenumber = 0
+    for u in self.users.filter(role='Student'):
+      for index, score in [(1, 5), (2, 4), (3, 3), (4, 2), (5, 1)]:
+        pitch = PitchVote.objects.get(courseuser=u, vote=index).pitch
+        pitch = pitches[pitches.index(pitch)]
+        pitch.votecount += score
+        pitch.votenumber += 1
+    for p in pitches:
+      if p.votecount == 0:
+        continue
+      else:
+        p.votecount = float(p.votecount) / p.votenumber
+
+    pitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
+    return pitches
 
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")
@@ -511,7 +639,6 @@ class Pitch(models.Model):
   updated = models.DateTimeField(auto_now=True)
   owner = models.ForeignKey('CourseUser', related_name='pitches')
   votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', through='PitchVote', blank=True, null=True)
-  #votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', blank=True, null=True)
   visible = models.BooleanField(default=True)
 
   def getYouTubeLink(self):

@@ -346,6 +346,18 @@ class Class(models.Model):
     pitches.sort(key=lambda pitch: pitch.votecount, reverse=True)
     return pitches
 
+  def printAllVotes(self):
+    string = "Student,Owner,1st,2nd,3rd,4th,5th\n"
+    for u in self.users.filter(role='Student'):
+      output = []
+      output.append(str(u.getname()))
+      output.append(str(u.pitches.get().id))
+      for index in [1, 2, 3, 4, 5]:
+        output.append(str(PitchVote.objects.get(courseuser=u, vote=index).pitch.id))
+      string += ",".join(output)
+      string += "\n"
+    return string
+
 class Meeting(models.Model):
   theclass = models.ForeignKey("Class")
   
@@ -640,6 +652,7 @@ class Pitch(models.Model):
   owner = models.ForeignKey('CourseUser', related_name='pitches')
   votes = models.ManyToManyField('CourseUser', related_name='pitch_votes', through='PitchVote', blank=True, null=True)
   visible = models.BooleanField(default=True)
+  selected = models.BooleanField(default=False)
 
   def getYouTubeLink(self):
     return "http://www.youtube.com/embed/%s" % (self.youtubeID)

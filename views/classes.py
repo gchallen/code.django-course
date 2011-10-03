@@ -34,6 +34,9 @@ urlpatterns = patterns('course.views.classes',
                        url(r'^/pitches/view/$', 'pitchesview', name='pitches-view'),
                        url(r'^/pitches/view/(?P<pitchid>\d+)?$', 'pitchesview', name='pitches-view'),
                        url(r'^/pitches/edit/$', 'pitchesedit', name='pitches-edit'),
+                       url(r'^/projects/$', 'projectsviewselected', name='projects-selected'),
+                       url(r'^/projects/selected/$', 'projectsviewselected', name='projects-selected'),
+                       url(r'^/projects/all/$', 'projectsviewall', name='projects-all'),
                        url(r'^/login/$', 'login', name='login'),
                        url(r'^/logout/$', 'logout', name='logout'),
                        url(r'^/reset/complete/$', 'reset_complete', name='reset-complete'),
@@ -117,7 +120,7 @@ class MenuLink:
 def loadLinks(theclass, visible=None):
   menulinks = [MenuLink('Summary', reverse('course:summary')),
                MenuLink('Schedule', reverse('course:schedule-default')),
-               MenuLink('Pitches', reverse('course:pitches-view'))]
+               MenuLink('Projects', reverse('course:projects-selected'))]
   return initLinks(menulinks, visible)
 
 def initLinks(menulinks, visible=None):
@@ -224,10 +227,6 @@ def reset(request, theclass, uidb36=None, token=None):
   except Exception:
     user = None
 
-  logging.debug(str(user))
-  logging.debug(token)
-  logging.debug(token_generator.check_token(user, token))
-  
   if user is not None and token_generator.check_token(user, token):
       validlink = True
       if request.method == 'POST':
@@ -308,10 +307,7 @@ def pitchesview(request, theclass, pitchid=None):
   showVideo = False
   form = None
     
-  pitches = []
-  for u in theclass.users.filter():
-    pitches.extend(u.pitches.filter(visible=True))
-  pitches.sort(key=lambda pitch: pitch.id)
+  pitches = [p for p in Pitch.objects.filter(owner__in=theclass.users.filter())]
 
   if pitchid != None:
     pitchid = int(pitchid)
@@ -472,3 +468,36 @@ def loadPitchSubLinksLoggedIn(visible=None):
   menulinks = [MenuLink('Vote', reverse('course:pitches-view')),
                MenuLink('Edit', reverse('course:pitches-edit'))]
   return initLinks(menulinks, visible)
+
+def loadProjectSubLinks(visible=None):
+  menulinks = [MenuLink('Selected', reverse('course:projects-selected')),
+               MenuLink('All', reverse('course:projects-all'))]
+  return initLinks(menulinks, visible)
+
+def projectsviewselected(request, theclass):
+  selectedpitches = [p for p in Pitch.objects.filter(owner__in=theclass.users.filter(), selected=True)]
+  random.shuffle(selectedpitches)
+  theclass.submenulinks = loadProjectSubLinks()
+  theclass.selectedsubmenulink = 'Selected'
+  return doprojectsview(request, theclass, selectedpitches)
+
+def projectsviewall(request, theclass):
+  selectedpitches = [p for p in Pitch.objects.filter(owner__in=theclass.users.filter(), selected=True)]
+  random.shuffle(selectedpitches)
+  rejectedpitches = [p for p in Pitch.objects.filter(owner__in=theclass.users.filter()).exclude(selected=True)]
+  logging.critical(len(rejectedpitches))
+  random.shuffle(rejectedpitches)
+  allpitches = selectedpitches + rejectedpitches
+  theclass.submenulinks = loadProjectSubLinks()
+  theclass.selectedsubmenulink = 'All'
+  logging.critical(len(allpitches))
+  return doprojectsview(request, theclass, allpitches)
+
+def doprojectsview(request, theclass, pitches):
+  theclass.menulinks = loadLinks(theclass)
+  theclass.selectedmenulink = 'Projects'
+  return render_to_response('class/pitches/viewprojects.html',
+                            {'theclass': theclass,
+                             'pitches': pitches,},
+                            context_instance=RequestContext(request, current_app=theclass.app_name))
+  
